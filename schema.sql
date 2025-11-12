@@ -55,6 +55,9 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'inventory_item_type') THEN
     CREATE TYPE inventory_item_type AS ENUM ('product','variant');
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ticket_status') THEN
+    CREATE TYPE ticket_status AS ENUM ('open', 'waiting_on_admin', 'waiting_on_customer', 'closed');
+  END IF;
 END$$;
 
 -- helper function to update the updated_at timestamp
@@ -88,6 +91,41 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE TRIGGER trg_users_touch_upd BEFORE UPDATE ON users
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
+
+
+-- Tickets for contact system
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id BIGSERIAL PRIMARY KEY,
+  created_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,  -- requester (customer)
+  subject TEXT NOT NULL,
+  status ticket_status NOT NULL DEFAULT 'open',
+  assigned_to_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,  -- optional, which admin owns it
+  last_message_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),  -- for sorting inboxes
+  closed_at TIMESTAMPTZ,
+  closed_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,  -- admin who closed it
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_status ON support_tickets(status);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_created_by ON support_tickets(created_by_user_id);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_assigned_to ON support_tickets(assigned_to_user_id);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_last_msg ON support_tickets(last_message_at DESC);
+
+CREATE TRIGGER trg_support_tickets_touch_upd BEFORE UPDATE ON support_tickets
+FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
+
+
+-- Ticket Messages 
+CREATE TABLE IF NOT EXISTS support_messages (
+  id BIGSERIAL PRIMARY KEY,
+  ticket_id BIGINT NOT NULL REFERENCES support_tickets(id) ON DELETE CASCADE,
+  sender_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,  -- customer or admin
+  body TEXT NOT NULL,
+  is_internal BOOLEAN NOT NULL DEFAULT FALSE,  -- admin-only note
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_support_messages_ticket ON support_messages(ticket_id);
+CREATE INDEX IF NOT EXISTS idx_support_messages_created_at ON support_messages(created_at);
 
 
 -- Customer profile and addresses
