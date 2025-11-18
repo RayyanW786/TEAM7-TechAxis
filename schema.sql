@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS categories (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT categories_name_ck CHECK (LENGTH(name) > 0),
-  CONSTRAINT categories_sibling_sort_unique UNIQUE (parent_id, sort_order),
+  CONSTRAINT categories_sibling_sort_unique UNIQUE (parent_id, sort_order) DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT categories_slug_ck CHECK (slug = LOWER(slug) AND slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$')
 );
 CREATE INDEX idx_categories_parent_id ON categories(parent_id);
@@ -215,10 +215,9 @@ CREATE INDEX idx_products_category_id ON products(category_id);
 CREATE INDEX idx_products_brand_id ON products(brand_id);
 CREATE INDEX idx_products_status ON products(status);
 CREATE INDEX idx_products_price ON products(price);
--- weighted FTS (name > description)
-CREATE INDEX idx_products_fts_weighted ON products USING GIN (
-  setweight(to_tsvector('english', COALESCE(name,'')), 'A') ||
-  setweight(to_tsvector('english', COALESCE(description,'')), 'C')
+-- FTS (name > description)
+CREATE INDEX idx_products_fts ON products USING GIN (
+  to_tsvector('english', COALESCE(name,'') || ' ' || COALESCE(description,''))
 );
 CREATE INDEX idx_products_name_trgm ON products USING GIN (name gin_trgm_ops);
 
@@ -311,19 +310,19 @@ CREATE TABLE IF NOT EXISTS cart_items (
   variant_id BIGINT REFERENCES product_variants(id) ON DELETE RESTRICT,
   quantity INT NOT NULL CHECK (quantity > 0),
   unit_price NUMERIC(12,2) NOT NULL CHECK (unit_price >= 0), -- snapshot at add time
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   
-  -- one item per (cart, product) when variant_id IS NULL
-  CONSTRAINT cart_items_unique_no_variant
-    UNIQUE (cart_id, product_id)
-    WHERE variant_id IS NULL,
-
-  -- one item per (cart, product, variant) when variant_id IS NOT NULL
-  CONSTRAINT cart_items_unique_with_variant
-    UNIQUE (cart_id, product_id, variant_id)
-    WHERE variant_id IS NOT NULL
-    
 );
+-- one item per (cart, product) when variant_id IS NULL
+CREATE UNIQUE INDEX ux_cart_items_no_variant
+  ON cart_items(cart_id, product_id)
+  WHERE variant_id IS NULL;
+
+-- one item per (cart, product, variant) when variant_id IS NOT NULL
+CREATE UNIQUE INDEX ux_cart_items_with_variant
+  ON cart_items(cart_id, product_id, variant_id)
+  WHERE variant_id IS NOT NULL;
+
 CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);
 
 
@@ -646,19 +645,19 @@ CREATE OR REPLACE FUNCTION fn_add_to_cart(
   p_unit_price  NUMERIC
 )
 RETURNS VOID
-LANGUAGE plpgsql
+LANGUAGE PLPGSQL
 AS $$
 BEGIN
   IF p_variant_id IS NULL THEN
     INSERT INTO cart_items (cart_id, product_id, variant_id, quantity, unit_price)
     VALUES (p_cart_id, p_product_id, NULL, p_quantity, p_unit_price)
-    ON CONFLICT ON CONSTRAINT cart_items_unique_no_variant
+    ON CONFLICT (cart_id, product_id) WHERE variant_id IS NULL
     DO UPDATE
       SET quantity = cart_items.quantity + EXCLUDED.quantity;
   ELSE
     INSERT INTO cart_items (cart_id, product_id, variant_id, quantity, unit_price)
     VALUES (p_cart_id, p_product_id, p_variant_id, p_quantity, p_unit_price)
-    ON CONFLICT ON CONSTRAINT cart_items_unique_with_variant
+    ON CONFLICT (cart_id, product_id, variant_id) WHERE variant_id IS NOT NULL
     DO UPDATE
       SET quantity = cart_items.quantity + EXCLUDED.quantity;
   END IF;
@@ -1228,34 +1227,44 @@ END$$;
 -- reorder images exactly as provided (0..n-1), any missing keep their current spot
 CREATE OR REPLACE FUNCTION fn_reorder_product_images(p_product_id BIGINT, p_image_ids BIGINT[])
 RETURNS VOID
-LANGUAGE SQL
+LANGUAGE PLPGSQL
 AS $$
-WITH ord AS (
-  SELECT img_id, ord - 1 AS new_sort
-  FROM UNNEST(p_image_ids) WITH ORDINALITY AS t(img_id, ord)
-)
-UPDATE product_images pi
-SET sort_order = ord.new_sort
-FROM ord
-WHERE pi.product_id = p_product_id
-  AND pi.id = ord.img_id;
+BEGIN
+  PERFORM pg_advisory_xact_lock(1, p_product_id);
+
+  WITH ord AS (
+    SELECT img_id, ord - 1 AS new_sort
+    FROM UNNEST(p_image_ids) WITH ORDINALITY AS t(img_id, ord)
+  )
+  UPDATE product_images pi
+  SET sort_order = ord.new_sort
+  FROM ord
+  WHERE pi.product_id = p_product_id
+    AND pi.id = ord.img_id;
+END;
 $$;
 
 
 -- reorder category siblings (for a given parent) to 0..n-1 in the array order
 CREATE OR REPLACE FUNCTION fn_reorder_category_siblings(p_parent_id BIGINT, p_category_ids BIGINT[])
 RETURNS VOID
-LANGUAGE SQL
+LANGUAGE PLPGSQL
 AS $$
-WITH ord AS (
-  SELECT cat_id, ord - 1 AS new_sort
-  FROM UNNEST(p_category_ids) WITH ORDINALITY AS t(cat_id, ord)
-)
-UPDATE categories c
-SET sort_order = ord.new_sort
-FROM ord
-WHERE c.parent_id IS NOT DISTINCT FROM p_parent_id
-  AND c.id = ord.cat_id;
+DECLARE
+  v_parent BIGINT := COALESCE(p_parent_id, 0);
+BEGIN
+  PERFORM pg_advisory_xact_lock(2, v_parent);
+
+  WITH ord AS (
+    SELECT cat_id, ord - 1 AS new_sort
+    FROM UNNEST(p_category_ids) WITH ORDINALITY AS t(cat_id, ord)
+  )
+  UPDATE categories c
+  SET sort_order = ord.new_sort
+  FROM ord
+  WHERE c.parent_id IS NOT DISTINCT FROM p_parent_id
+    AND c.id = ord.cat_id;
+END;
 $$;
 
 
