@@ -7,7 +7,6 @@ You will need:
 - **Git**
 - **PHP 8.2+**
 - **Composer** – https://getcomposer.org/
-- **Node.js 18+** and **npm** – https://nodejs.org/
 - **PostgreSQL 16+**  - https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 
 > This guide assumes **Windows**. On macOS/Linux, the general steps are the same but commands/tools may differ slightly.
