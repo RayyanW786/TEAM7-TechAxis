@@ -130,11 +130,6 @@ psql -U tech_axis -d tech_axis -f schema.sql
 ```
 This creates all tables, functions, triggers, and views defined in `schema.sql`.
 
-```bash
-cd src
-php artisan migrate
-```
-
 ---
 
 ## 4. Laravel Setup
