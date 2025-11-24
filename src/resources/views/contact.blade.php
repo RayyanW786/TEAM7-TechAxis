@@ -229,7 +229,7 @@
     
     <header>
         <div class="logo">
-            <img src="/images/Logo.png" width="150">
+            <img src="Logo.png" width="150">
         </div>
 
         <nav>
@@ -335,3 +335,4 @@
 
 </body>
 </html>
+
