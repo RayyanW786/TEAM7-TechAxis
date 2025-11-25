@@ -4,62 +4,69 @@ namespace App\Http\Controllers;
 
 use App\Models\users;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+   public function register(Request $request)
+   {
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8|confirmed',
+        'role' => 'required|in:admin,customer',
+        'admin_code' => 'required_if:role,admin|string'
+    ]);
+    if ($request->role === 'admin' && $request->admin_code !== env('ADMIN_REGISTRATION_CODE')) {
+       return back()->withErrors(['admin_code' => 'Invalid admin registration code.'])->withInput();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    $user = users::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'role' => $request->role,
+    ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+    $user->setPassword($request->password, false);
+      Auth::login($user);
+      $request->session()->regenerate();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(users $users)
-    {
-        //
-    }
+      if ($user->isAdmin()) {
+          return redirect()->route(ADMIN_DASHBOARD_PLACEHOLDER);
+      } else {
+          return redirect()->route(CUSTOMER_DASHBOARD_PLACEHOLDER);
+      }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(users $users)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, users $users)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(users $users)
-    {
-        //
-    }
+   }
+   public function login(Request $request)
+   {
+      $request->validate([
+          'email' => 'required|string|email',
+          'password' => 'required|string',
+      ]);
+
+      $user = users::where('email', $request->email)->first();
+
+      if (!$user || !Hash::check($request->password, $user->password_hash)) {
+          return back()->withErrors(['email' => 'The provided credentials do not match our records.'])->withInput();
+      }
+      Auth::login($user);
+      $request->session()->regenerate();
+
+      if ($user->isAdmin()) {
+          return redirect()->route(ADMIN_DASHBOARD_PLACEHOLDER);
+      } else {
+          return redirect()->route(CUSTOMER_DASHBOARD_PLACEHOLDER);
+      }
+   }
+   public function logout(Request $request)
+   {
+      Auth::logout();
+      $request->session()->invalidate();
+      $request->session()->regenerateToken();
+      return redirect()->route(HOME_PLACEHOLDER);
+   }
 }
