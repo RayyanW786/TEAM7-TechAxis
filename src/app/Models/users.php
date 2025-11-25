@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\DB;
+use Illuminate\Support\Facades\DB;
 
 class users extends Authenticatable
 {
