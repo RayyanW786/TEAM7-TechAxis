@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Models\users;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +26,7 @@ class UsersController extends Controller
     $user = users::create([
         'name' => $request->name,
         'email' => $request->email,
-        'role' => $request->role,
+        'role' => $request->role === 'admin' ? UserRole::Admin : UserRole::Customer,
     ]);
 
     $user->setPassword($request->password, false);
