@@ -18,7 +18,7 @@ class User extends Authenticatable
         'name',
         'email',
         'role'
-    ] ;
+    ];
     protected $hidden = [
         'password_hash',
     ];
@@ -40,7 +40,7 @@ class User extends Authenticatable
         );
         $this->refresh();
     }
-      public function setPasswordHashViaDb(string $hash, bool $forceChange = false): void
+    public function setPasswordHashViaDb(string $hash, bool $forceChange = false): void
     {
         DB::statement('select fn_user_set_password(?, ?, ?)', [
             $this->id,
@@ -58,6 +58,51 @@ class User extends Authenticatable
     }
     public function getAuthPassword(): string
     {
-        return $this->password_hash;
+        return (string) $this->password_hash;
+    }
+
+    public function customerProfile()
+    {
+        return $this->hasOne(CustomerProfile::class, 'user_id');
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(Address::class, 'user_id');
+    }
+
+    public function defaultShippingAddress()
+    {
+        return $this->hasOne(Address::class, 'user_id')->where('is_default_shipping', true);
+    }
+
+    public function cart()
+    {
+        return $this->hasOne(ShoppingCart::class, 'user_id');
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
+    public function supportTicketsCreated()
+    {
+        return $this->hasMany(SupportTicket::class, 'created_by_user_id');
+    }
+
+    public function supportTicketsAssigned()
+    {
+        return $this->hasMany(SupportTicket::class, 'assigned_to_user_id');
+    }
+
+    public function productReviews()
+    {
+        return $this->hasMany(ProductReview::class, 'user_id');
+    }
+
+    public function serviceReview()
+    {
+        return $this->hasOne(ServiceReview::class, 'user_id');
     }
 }
