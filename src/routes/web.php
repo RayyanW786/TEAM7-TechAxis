@@ -7,22 +7,22 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/register', function () {
-    return view(REGISTER PAGE PLACEHOLDER);
+    return view('register');
 });
 Route::get('/login', function () {
-    return view(LOGIN PAGE PLACEHOLDER);
+    return view('login');
 });
 Route::post('/register', [UsersController::class, 'register'])->name('register');
 Route::post('/login', [UsersController::class, 'login'])->name('login');
 Route::post('/logout', [UsersController::class, 'logout'])->name('logout');
-Route::middleware('auth', 'admin')->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     // Protected routes can be added here
     Route::get('/admin/dashboard', function () {
-        return view(ADMIN DASHBOARD PLACEHOLDER);
-    })->name(adminDashboard);
+        return view('admin.dashboard');
+    })->name('adminDashboard');
 });
 Route::get('/customer/dashboard', function () {
-    return view(CUSTOMER DASHBOARD PLACEHOLDER);
+    return view('customer.dashboard');
 })->middleware('auth')->name('customerDashboard');
 Route::get('/dashboard', function () {
     if (!Auth::user()) {
