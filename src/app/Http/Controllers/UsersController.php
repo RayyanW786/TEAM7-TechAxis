@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
-use App\Models\users;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -14,16 +14,16 @@ class UsersController extends Controller
    {
     $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
+        'email' => 'required|string|email|max:255|unique:users,email',
         'password' => 'required|string|min:8|confirmed',
         'role' => 'required|in:admin,customer',
         'admin_code' => 'required_if:role,admin|string'
     ]);
-    if ($request->role === 'admin' && $request->admin_code !== env('ADMIN_REGISTRATION_CODE')) {
+    if ($request->role === 'admin' && $request->admin_code !== config('app.admin_registration_code')) {
        return back()->withErrors(['admin_code' => 'Invalid admin registration code.'])->withInput();
     }
 
-    $user = users::create([
+    $user = User::create([
         'name' => $request->name,
         'email' => $request->email,
         'role' => $request->role === 'admin' ? UserRole::Admin : UserRole::Customer,
@@ -49,13 +49,11 @@ class UsersController extends Controller
           'password' => 'required|string',
       ]);
 
-      $user = users::where('email', $request->email)->first();
-
-      if (!$user || !Hash::check($request->password, $user->password_hash)) {
+      if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
           return back()->withErrors(['email' => 'The provided credentials do not match our records.'])->withInput();
       }
-      Auth::login($user);
       $request->session()->regenerate();
+        $user = Auth::user();
 
       if ($user->isAdmin()) {
           return redirect()->route(ADMIN_DASHBOARD_PLACEHOLDER);

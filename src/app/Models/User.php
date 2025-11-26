@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\UserRole;
 
-class users extends Authenticatable
+class User extends Authenticatable
 {
     use HasFactory, Notifiable;
     protected $table = "users";
@@ -55,5 +55,9 @@ class users extends Authenticatable
     public function isCustomer(): bool
     {
         return $this->role === UserRole::Customer;
+    }
+    public function getAuthPassword(): string
+    {
+        return $this->password_hash;
     }
 }
