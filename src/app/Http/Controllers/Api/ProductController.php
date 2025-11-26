@@ -1,0 +1,170 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Enums\ProductStatus;
+use App\Enums\UserRole;
+use App\Models\Product;
+use App\Models\ProductVariant;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+
+class ProductController extends ApiController
+{
+    public function index(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+
+        if ($q !== '') {
+            $categorySlugs = $request->query('category_slugs');
+            $slugs = is_array($categorySlugs) ? $categorySlugs : null;
+
+            $rows = DB::select(
+                'select * from fn_search_products(?, ?::text[], ?, ?, ?, ?)',
+                [
+                    $q,
+                    $this->pgTextArray($slugs),
+                    $request->query('min_price'),
+                    $request->query('max_price'),
+                    (int) $request->query('limit', 20),
+                    (int) $request->query('offset', 0),
+                ]
+            );
+
+            return response()->json([
+                'query' => $q,
+                'items' => $rows,
+            ]);
+        }
+
+        $user = $request->user();
+
+        $products = Product::query()
+            ->with(['category', 'brand'])
+            ->when(!$user || $user->role !== UserRole::Admin, fn($qb) => $qb->where('status', ProductStatus::Active))
+            ->when($request->filled('status') && $user && $user->role === UserRole::Admin, fn($qb) => $qb->where('status', $request->query('status')))
+            ->orderByDesc('created_at')
+            ->paginate((int) $request->query('per_page', 20));
+
+        return response()->json($products);
+    }
+
+    public function show(Product $product)
+    {
+        $product->load(['category', 'brand', 'images', 'variants', 'optionTypes.values']);
+
+        return response()->json([
+            'product' => $product,
+            'effective_price' => $product->effectivePrice(),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $this->requireAdmin($request);
+
+        $data = $request->validate([
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'brand_id' => ['nullable', 'integer', 'exists:brands,id'],
+            'name' => ['required', 'string', 'max:255'],
+            'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
+            'sku' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in(array_map(fn($c) => $c->value, ProductStatus::cases()))],
+            'summary' => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'stock_quantity' => ['nullable', 'integer', 'min:0'],
+            'has_variants' => ['nullable', 'boolean'],
+            'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $product = Product::create($data);
+
+        return response()->json($product->fresh(), 201);
+    }
+
+    public function update(Request $request, Product $product)
+    {
+        $this->requireAdmin($request);
+
+        $data = $request->validate([
+            'category_id' => ['sometimes', 'integer', 'exists:categories,id'],
+            'brand_id' => ['nullable', 'integer', 'exists:brands,id'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'slug' => ['sometimes', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
+            'sku' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in(array_map(fn($c) => $c->value, ProductStatus::cases()))],
+            'summary' => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
+            'price' => ['sometimes', 'numeric', 'min:0'],
+            'stock_quantity' => ['nullable', 'integer', 'min:0'],
+            'has_variants' => ['nullable', 'boolean'],
+            'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $product->fill($data)->save();
+
+        return response()->json($product->fresh(['category', 'brand']));
+    }
+
+    public function destroy(Request $request, Product $product)
+    {
+        $this->requireAdmin($request);
+
+        $product->delete();
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function upsertVariant(Request $request, Product $product)
+    {
+        $this->requireAdmin($request);
+
+        $data = $request->validate([
+            'variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
+            'sku' => ['required', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'price' => ['required', 'numeric', 'min:0'],
+            'stock_quantity' => ['nullable', 'integer', 'min:0'],
+            'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $variant = null;
+
+        if (!empty($data['variant_id'])) {
+            $variant = ProductVariant::query()
+                ->where('id', $data['variant_id'])
+                ->where('product_id', $product->id)
+                ->firstOrFail();
+        }
+
+        $variant ??= new ProductVariant(['product_id' => $product->id]);
+
+        $variant->fill([
+            'sku' => $data['sku'],
+            'title' => $data['title'] ?? null,
+            'price' => $data['price'],
+            'stock_quantity' => $data['stock_quantity'] ?? 0,
+            'low_stock_threshold' => $data['low_stock_threshold'] ?? 5,
+        ])->save();
+
+        $product->update(['has_variants' => true]);
+
+        return response()->json($variant->fresh(), 201);
+    }
+
+    public function destroyVariant(Request $request, Product $product, int $variantId)
+    {
+        $this->requireAdmin($request);
+
+        $variant = ProductVariant::query()
+            ->where('id', $variantId)
+            ->where('product_id', $product->id)
+            ->firstOrFail();
+
+        $variant->delete();
+
+        return response()->json(['ok' => true]);
+    }
+}
