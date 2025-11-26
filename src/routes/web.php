@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,11 +20,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Protected routes can be added here
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
-    })->name('adminDashboard');
+    })->name('admin.dashboard');
 });
 Route::get('/customer/dashboard', function () {
     return view('customer.dashboard');
-})->middleware('auth')->name('customerDashboard');
+})->middleware('auth')->name('customer.dashboard');
 Route::get('/dashboard', function () {
     if (!Auth::user()) {
         return redirect()->route('login');
