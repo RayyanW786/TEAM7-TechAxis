@@ -23,12 +23,12 @@ class CustomerProfileController extends ApiController
         abort_unless($user, 401);
 
         $data = $request->validate([
+            'phone' => ['nullable', 'string', 'max:30'],
             'date_of_birth' => ['nullable', 'date'],
         ]);
 
-        $profile = CustomerProfile::query()->firstOrCreate(['user_id' => $user->id]);
-        $profile->fill($data)->save();
-
+        $profile = CustomerProfile::query()->updateOrCreate(['user_id' => $user->id], $data);
+        
         return response()->json($profile->fresh());
     }
 }

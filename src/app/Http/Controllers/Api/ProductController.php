@@ -120,26 +120,39 @@ class ProductController extends ApiController
     public function upsertVariant(Request $request, Product $product)
     {
         $this->requireAdmin($request);
+        
+        $variantId = $request->input('variant_id');
+
+        $variant = null;
+
+        if ($variantId) {
+            $variant = ProductVariant::query()
+                ->where('id', $variantId)
+                ->where('product_id', $product->id)
+                ->firstOrFail();
+        }
+
+        $skuUniqueRule = Rule::unique('product_variants', 'sku');
+        if ($variant) {
+            $skuUniqueRule = $skuUniqueRule->ignore($variant->id);
+        }
 
         $data = $request->validate([
             'variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
-            'sku' => ['required', 'string', 'max:255'],
+            'sku' => ['required', 'string', 'max:255'], $skuUniqueRule,
             'title' => ['nullable', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock_quantity' => ['nullable', 'integer', 'min:0'],
             'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $variant = null;
+        $created = false;
 
-        if (!empty($data['variant_id'])) {
-            $variant = ProductVariant::query()
-                ->where('id', $data['variant_id'])
-                ->where('product_id', $product->id)
-                ->firstOrFail();
+        if (! $variant) {
+            $variant = new ProductVariant();
+            $variant->product_id = $product->id;
+            $created = true;
         }
-
-        $variant ??= new ProductVariant(['product_id' => $product->id]);
 
         $variant->fill([
             'sku' => $data['sku'],
@@ -148,10 +161,12 @@ class ProductController extends ApiController
             'stock_quantity' => $data['stock_quantity'] ?? 0,
             'low_stock_threshold' => $data['low_stock_threshold'] ?? 5,
         ])->save();
+        
+        if (! $product->has_variants) {
+            $product->update(['has_variants' => true]);
+        }
 
-        $product->update(['has_variants' => true]);
-
-        return response()->json($variant->fresh(), 201);
+        return response()->json($variant->fresh(), $created ? 201 : 200);
     }
 
     public function destroyVariant(Request $request, Product $product, int $variantId)
@@ -164,6 +179,10 @@ class ProductController extends ApiController
             ->firstOrFail();
 
         $variant->delete();
+        
+        if (! ProductVariant::query()->where('product_id', $product->id)->exists()) {
+            $product->update(['has_variants' => false]);
+        }
 
         return response()->json(['ok' => true]);
     }

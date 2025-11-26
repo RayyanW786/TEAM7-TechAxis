@@ -29,8 +29,9 @@ class BrandController extends ApiController
         $this->requireAdmin($request);
 
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
+            'name' => ['required', 'string', 'max:255', 'unique:bands,name'],
+            'slug' => ['required', 'string', 'max:255', 'unique:brands,slug', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
+            'description' => ['nullable', 'string'],
         ]);
 
         return response()->json(Brand::create($data), 201);
@@ -41,8 +42,9 @@ class BrandController extends ApiController
         $this->requireAdmin($request);
 
         $data = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
-            'slug' => ['sometimes', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
+            'name' => ['sometimes', 'string', 'max:255', Rule::unique('brands', 'name')->ignore($brand->id)],
+            'slug' => ['sometimes', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'], Rule::unique('brands', 'slug')->ignore($brand->id),
+            'description' => ['nullable', 'string'],
         ]);
 
         $brand->fill($data)->save();

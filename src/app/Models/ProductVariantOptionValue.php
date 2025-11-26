@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class ProductVariantOptionValue extends Model
+class ProductVariantOptionValue extends Pivot
 {
-    use HasFactory;
-
     protected $table = 'product_variant_option_values';
 
     public $timestamps = false;

@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class ProductOptionType extends Model
+class ProductOptionType extends Pivot
 {
-    use HasFactory;
 
     protected $table = 'product_option_types';
 

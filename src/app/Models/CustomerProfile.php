@@ -17,6 +17,7 @@ class CustomerProfile extends Model
 
     protected $fillable = [
         'user_id',
+        'phone',
         'date_of_birth',
     ];
 

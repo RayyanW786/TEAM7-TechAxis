@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\NullableBoolean;
 use App\Enums\ReturnStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +32,7 @@ class ReturnRequest extends Model
         'status' => ReturnStatus::class,
         'quantity' => 'integer',
         'approved_quantity' => 'integer',
-        'restock' => 'boolean',
+        'restock' => NullableBoolean::class,
         'requested_at' => 'datetime',
         'processed_at' => 'datetime',
     ];

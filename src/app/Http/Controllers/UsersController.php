@@ -27,13 +27,15 @@ class UsersController extends Controller
             }
         }
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'role' => UserRole::from($data['role']),
-        ]);
-
-        $user->setPassword($request->password, false);
+        $user = DB::transaction(function () use ($data) {
+            $user = new User();
+            $user->name = $data['name'];
+            $user->email = $data['email'];
+            $user->role = UserRole::from($data['role']);
+            $user->password_hash = Hash::make($data['password']);
+            $user->save();
+            return $user;
+        });
 
         Auth::login($user);
         $request->session()->regenerate();
@@ -58,7 +60,7 @@ class UsersController extends Controller
 
         $request->session()->regenerate();
         return redirect()->route($request->user()->isAdmin() ? 'admin.dashboard' : 'customer.dashboard');
-    
+
     }
     public function logout(Request $request)
     {
