@@ -21,7 +21,7 @@
     .card {
       background: #1C1C1C;
       padding: 2rem;
-      width: 350px;
+      width: 400px;
       border-radius: 16px;
       box-shadow: 0 0 12px rgba(255, 0, 0, 0.4);
       border: 2px solid #FF0000;
@@ -34,7 +34,7 @@
       color: #FF0000;
     }
     input {
-      width: 100%;
+      width: 90%;
       padding: 0.85rem;
       margin: 0.6rem 0;
       border-radius: 10px;
