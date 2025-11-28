@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 });
 Route::get('/register', function () {
     return view('register');
