@@ -2,7 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\Storefront\ProductPageController;
+use App\Http\Controllers\Storefront\CartPageController;
+use App\Http\Controllers\Storefront\CheckoutPageController;
+use App\Http\Controllers\Storefront\OrderPageController;
 use Illuminate\Support\Facades\Auth;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,9 +35,21 @@ Route::get('/dashboard', function () {
         return redirect()->route('login');
     }
     if (Auth::user()->isAdmin()) {
-        return redirect()->route('adminDashboard');
+        return redirect()->route('admin.dashboard');
     } else {
-        return redirect()->route('customerDashboard');
+        return redirect()->route('customer.dashboard');
     }
 })->middleware('auth')->name('dashboard');
 
+Route::get('/products', [ProductPageController::class, 'index'])->name('products.index');
+Route::get('/products/{product:slug}', [ProductPageController::class, 'show'])->name('products.show');
+
+Route::get('/cart', [CartPageController::class, 'show'])->name('cart.show');
+
+Route::get('/checkout', [CheckoutPageController::class, 'show'])
+    ->middleware('auth')
+    ->name('checkout.show');
+
+Route::get('/orders/{order}', [OrderPageController::class, 'show'])
+    ->middleware('auth')
+    ->name('orders.show');

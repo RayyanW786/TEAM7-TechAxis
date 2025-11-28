@@ -1,0 +1,74 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 14px;
+  align-items: start;
+}
+
+.h2 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.field { display: grid; gap: 8px; margin-bottom: 12px; }
+
+.input, .select, .textarea {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: #0b0b0b;
+  color: #fff;
+  font-size: 16px;
+}
+
+.textarea { resize: vertical; }
+
+.check { display: flex; gap: 10px; align-items: center; margin: 8px 0 14px; }
+
+.btn, .order-btn {
+  border: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #2a2a2a;
+  color: #fff;
+  cursor: pointer;
+}
+
+.order-btn {
+  width: 100%;
+  background: #c91515;
+  font-size: 18px;
+  margin-top: 6px;
+}
+
+.hint { opacity: 0.75; margin-bottom: 12px; }
+
+.summary { display: grid; gap: 12px; }
+
+.sum-row {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+}
+
+.sum-name { font-weight: 900; }
+.sum-meta { opacity: 0.75; }
+.sum-line { text-align: right; font-weight: 900; }
+
+.total {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+}
+
+@media (max-width: 1000px) {
+  .grid { grid-template-columns: 1fr; }
+}

@@ -14,27 +14,47 @@ class ProductController extends ApiController
 {
     public function index(Request $request)
     {
-        $q = trim((string) $request->query('q', ''));
+        $searchQuery = trim((string) $request->query('q', ''));
 
-        if ($q !== '') {
-            $categorySlugs = $request->query('category_slugs');
-            $slugs = is_array($categorySlugs) ? $categorySlugs : null;
+        $categorySlugsParam = $request->query('category_slugs');
+        $categorySlugs = is_array($categorySlugsParam)
+            ? $categorySlugsParam
+            : (is_string($categorySlugsParam) && $categorySlugsParam !== '' ? [$categorySlugsParam] : null);
 
+        $minPrice = $request->filled('min_price') ? (string) $request->query('min_price') : null;
+        $maxPrice = $request->filled('max_price') ? (string) $request->query('max_price') : null;
+
+        $limit = max(1, min(100, (int) $request->query('limit', 20)));
+        $offset = max(0, (int) $request->query('offset', 0));
+
+        $usingPgSearch = $searchQuery !== ''
+            || ($categorySlugs && count($categorySlugs) > 0)
+            || $minPrice !== null
+            || $maxPrice !== null;
+
+        if ($usingPgSearch) {
             $rows = DB::select(
                 'select * from fn_search_products(?, ?::text[], ?, ?, ?, ?)',
                 [
-                    $q,
-                    $this->pgTextArray($slugs),
-                    $request->query('min_price'),
-                    $request->query('max_price'),
-                    (int) $request->query('limit', 20),
-                    (int) $request->query('offset', 0),
+                    $searchQuery === '' ? null : $searchQuery,
+                    $this->pgTextArray($categorySlugs),
+                    $minPrice,
+                    $maxPrice,
+                    $limit,
+                    $offset,
                 ]
             );
 
             return response()->json([
-                'query' => $q,
+                'query' => $searchQuery,
+                'filters' => [
+                    'category_slugs' => $categorySlugs,
+                    'min_price' => $minPrice,
+                    'max_price' => $maxPrice,
+                ],
                 'items' => $rows,
+                'limit' => $limit,
+                'offset' => $offset,
             ]);
         }
 
@@ -49,6 +69,7 @@ class ProductController extends ApiController
 
         return response()->json($products);
     }
+
 
     public function show(Product $product)
     {
@@ -139,7 +160,7 @@ class ProductController extends ApiController
 
         $data = $request->validate([
             'variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
-            'sku' => ['required', 'string', 'max:255'], $skuUniqueRule,
+            'sku' => ['required', 'string', 'max:255', $skuUniqueRule],
             'title' => ['nullable', 'string', 'max:255'],
             'price' => ['required', 'numeric', 'min:0'],
             'stock_quantity' => ['nullable', 'integer', 'min:0'],
