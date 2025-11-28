@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_users_touch_upd BEFORE UPDATE ON users
+CREATE OR REPLACE TRIGGER trg_users_touch_upd BEFORE UPDATE ON users
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
 
 
@@ -111,7 +111,7 @@ CREATE INDEX IF NOT EXISTS idx_support_tickets_created_by ON support_tickets(cre
 CREATE INDEX IF NOT EXISTS idx_support_tickets_assigned_to ON support_tickets(assigned_to_user_id);
 CREATE INDEX IF NOT EXISTS idx_support_tickets_last_msg ON support_tickets(last_message_at DESC);
 
-CREATE TRIGGER trg_support_tickets_touch_upd BEFORE UPDATE ON support_tickets
+CREATE OR REPLACE TRIGGER trg_support_tickets_touch_upd BEFORE UPDATE ON support_tickets
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
 
 
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS customer_profiles (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_customer_profiles_touch_upd BEFORE UPDATE ON customer_profiles
+CREATE OR REPLACE TRIGGER trg_customer_profiles_touch_upd BEFORE UPDATE ON customer_profiles
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
 
 
@@ -154,10 +154,10 @@ CREATE TABLE IF NOT EXISTS addresses (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE UNIQUE INDEX ux_addresses_default_shipping ON addresses(user_id) WHERE is_default_shipping;
-CREATE INDEX idx_addresses_user_id ON addresses(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_addresses_default_shipping ON addresses(user_id) WHERE is_default_shipping;
+CREATE INDEX IF NOT EXISTS idx_addresses_user_id ON addresses(user_id);
 
-CREATE TRIGGER trg_addresses_touch_upd BEFORE UPDATE ON addresses
+CREATE OR REPLACE TRIGGER trg_addresses_touch_upd BEFORE UPDATE ON addresses
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
 
 
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS brands (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT brands_slug_ck CHECK (slug = LOWER(slug) AND slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$')
 );
-CREATE TRIGGER trg_brands_touch_upd BEFORE UPDATE ON brands
+CREATE OR REPLACE TRIGGER trg_brands_touch_upd BEFORE UPDATE ON brands
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
 
 
@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS categories (
   CONSTRAINT categories_sibling_sort_unique UNIQUE (parent_id, sort_order) DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT categories_slug_ck CHECK (slug = LOWER(slug) AND slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$')
 );
-CREATE INDEX idx_categories_parent_id ON categories(parent_id);
+CREATE INDEX IF NOT EXISTS idx_categories_parent_id ON categories(parent_id);
 
 
 CREATE TABLE IF NOT EXISTS products (
@@ -211,17 +211,38 @@ CREATE TABLE IF NOT EXISTS products (
   CONSTRAINT products_stock_ck CHECK (stock_quantity >= 0),
   CONSTRAINT products_slug_ck CHECK (slug = LOWER(slug) AND slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$')
 );
-CREATE INDEX idx_products_category_id ON products(category_id);
-CREATE INDEX idx_products_brand_id ON products(brand_id);
-CREATE INDEX idx_products_status ON products(status);
-CREATE INDEX idx_products_price ON products(price);
+CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_brand_id ON products(brand_id);
+CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
+CREATE INDEX IF NOT EXISTS idx_products_price ON products(price);
 -- FTS (name > description)
-CREATE INDEX idx_products_fts ON products USING GIN (
-  to_tsvector('english', COALESCE(name,'') || ' ' || COALESCE(description,''))
-);
-CREATE INDEX idx_products_name_trgm ON products USING GIN (name gin_trgm_ops);
+DROP INDEX IF EXISTS idx_products_fts;
 
-CREATE TRIGGER trg_products_touch_upd BEFORE UPDATE ON products
+CREATE INDEX IF NOT EXISTS idx_products_fts ON products USING GIN (
+  (
+    setweight(to_tsvector('english', COALESCE(name,'')), 'A') ||
+    setweight(to_tsvector('english', COALESCE(summary,'')), 'B') ||
+    setweight(to_tsvector('english', COALESCE(description,'')), 'C')
+  )
+)
+WHERE status = 'active';
+
+
+CREATE INDEX IF NOT EXISTS idx_products_name_trgm
+  ON products USING GIN (name gin_trgm_ops)
+  WHERE status='active';
+
+CREATE INDEX IF NOT EXISTS idx_products_summary_trgm
+  ON products USING GIN (summary gin_trgm_ops)
+  WHERE status = 'active';
+
+CREATE INDEX IF NOT EXISTS idx_products_description_trgm
+  ON products USING GIN (description gin_trgm_ops)
+  WHERE status = 'active';
+
+
+
+CREATE OR REPLACE TRIGGER trg_products_touch_upd BEFORE UPDATE ON products
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
 
 
@@ -236,7 +257,7 @@ CREATE TABLE IF NOT EXISTS product_images (
     UNIQUE (product_id, sort_order)
     DEFERRABLE INITIALLY DEFERRED 
 );
-CREATE INDEX idx_product_images_product_id ON product_images(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON product_images(product_id);
 
 
 -- Options/Variants
@@ -253,7 +274,7 @@ CREATE TABLE IF NOT EXISTS option_values (
   value TEXT NOT NULL,
   UNIQUE(option_type_id, value)
 );
-CREATE INDEX idx_option_values_type ON option_values(option_type_id);
+CREATE INDEX IF NOT EXISTS idx_option_values_type ON option_values(option_type_id);
 
 
 CREATE TABLE IF NOT EXISTS product_option_types (
@@ -276,10 +297,10 @@ CREATE TABLE IF NOT EXISTS product_variants (
   CONSTRAINT product_variants_price_ck CHECK (price >= 0),
   CONSTRAINT product_variants_stock_ck CHECK (stock_quantity >= 0)
 );
-CREATE INDEX idx_product_variants_product_id ON product_variants(product_id);
-CREATE INDEX idx_product_variants_product_price ON product_variants(product_id, price);
+CREATE INDEX IF NOT EXISTS idx_product_variants_product_id ON product_variants(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_variants_product_price ON product_variants(product_id, price);
 
-CREATE TRIGGER trg_product_variants_touch_upd BEFORE UPDATE ON product_variants
+CREATE OR REPLACE TRIGGER trg_product_variants_touch_upd BEFORE UPDATE ON product_variants
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
 
 
@@ -297,9 +318,13 @@ CREATE TABLE IF NOT EXISTS shopping_carts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_carts_user_id ON shopping_carts(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_carts_one_per_user
+ON shopping_carts(user_id)
+WHERE user_id IS NOT NULL;
 
-CREATE TRIGGER trg_carts_touch_upd BEFORE UPDATE ON shopping_carts
+CREATE INDEX IF NOT EXISTS idx_carts_user_id ON shopping_carts(user_id);
+
+CREATE OR REPLACE TRIGGER trg_carts_touch_upd BEFORE UPDATE ON shopping_carts
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
 
 
@@ -314,16 +339,16 @@ CREATE TABLE IF NOT EXISTS cart_items (
   
 );
 -- one item per (cart, product) when variant_id IS NULL
-CREATE UNIQUE INDEX ux_cart_items_no_variant
+CREATE UNIQUE INDEX IF NOT EXISTS ux_cart_items_no_variant
   ON cart_items(cart_id, product_id)
   WHERE variant_id IS NULL;
 
 -- one item per (cart, product, variant) when variant_id IS NOT NULL
-CREATE UNIQUE INDEX ux_cart_items_with_variant
+CREATE UNIQUE INDEX IF NOT EXISTS ux_cart_items_with_variant
   ON cart_items(cart_id, product_id, variant_id)
   WHERE variant_id IS NOT NULL;
 
-CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);
+CREATE INDEX IF NOT EXISTS idx_cart_items_cart_id ON cart_items(cart_id);
 
 
 -- Orders / discount / shipments / returns
@@ -341,10 +366,10 @@ CREATE TABLE IF NOT EXISTS orders (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_orders_user_id ON orders(user_id);
-CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 
-CREATE TRIGGER trg_orders_touch_upd BEFORE UPDATE ON orders
+CREATE OR REPLACE TRIGGER trg_orders_touch_upd BEFORE UPDATE ON orders
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
 
 
@@ -362,7 +387,7 @@ CREATE TABLE IF NOT EXISTS discount_codes (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TRIGGER trg_discount_codes_touch_upd BEFORE UPDATE ON discount_codes
+CREATE OR REPLACE TRIGGER trg_discount_codes_touch_upd BEFORE UPDATE ON discount_codes
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
 
 
@@ -389,7 +414,7 @@ CREATE TABLE IF NOT EXISTS order_items (
   line_total NUMERIC(12,2) NOT NULL CHECK (line_total >= 0),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 
 
 CREATE TABLE IF NOT EXISTS shipments (
@@ -401,7 +426,7 @@ CREATE TABLE IF NOT EXISTS shipments (
   delivered_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_shipments_order_id ON shipments(order_id);
+CREATE INDEX IF NOT EXISTS idx_shipments_order_id ON shipments(order_id);
 
 
 CREATE TABLE IF NOT EXISTS return_requests (
@@ -417,8 +442,8 @@ CREATE TABLE IF NOT EXISTS return_requests (
   requested_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   processed_at TIMESTAMPTZ
 );
-CREATE INDEX idx_returns_user ON return_requests(user_id);
-CREATE INDEX idx_returns_status ON return_requests(status);
+CREATE INDEX IF NOT EXISTS idx_returns_user ON return_requests(user_id);
+CREATE INDEX IF NOT EXISTS idx_returns_status ON return_requests(status);
 
 
 -- Inventory ledger + alerts
@@ -432,8 +457,8 @@ CREATE TABLE IF NOT EXISTS inventory_transactions (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT inventory_qty_nonzero CHECK (quantity_change <> 0)
 );
-CREATE INDEX idx_inventory_product ON inventory_transactions(product_id, variant_id);
-CREATE INDEX idx_inventory_order ON inventory_transactions(order_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_product ON inventory_transactions(product_id, variant_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_order ON inventory_transactions(order_id);
 
 
 CREATE TABLE IF NOT EXISTS inventory_alerts (
@@ -452,8 +477,8 @@ CREATE TABLE IF NOT EXISTS inventory_alerts (
     (item_type = 'variant' AND variant_id IS NOT NULL)
   )
 );
-CREATE INDEX idx_inventory_alerts_product ON inventory_alerts(product_id);
-CREATE INDEX idx_inventory_alerts_variant ON inventory_alerts(variant_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_alerts_product ON inventory_alerts(product_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_alerts_variant ON inventory_alerts(variant_id);
 
 
 CREATE OR REPLACE FUNCTION fn_emit_stock_alert_product()
@@ -529,12 +554,12 @@ END$$;
 
 
 
-CREATE TRIGGER trg_products_stock_alert
+CREATE OR REPLACE TRIGGER trg_products_stock_alert
 AFTER INSERT OR UPDATE OF stock_quantity ON products
 FOR EACH ROW EXECUTE FUNCTION fn_emit_stock_alert_product();
 
 
-CREATE TRIGGER trg_variants_stock_alert
+CREATE OR REPLACE TRIGGER trg_variants_stock_alert
 AFTER INSERT OR UPDATE OF stock_quantity ON product_variants
 FOR EACH ROW EXECUTE FUNCTION fn_emit_stock_alert_variant();
 
@@ -552,8 +577,8 @@ CREATE TABLE IF NOT EXISTS product_reviews (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (product_id, user_id)
 );
-CREATE INDEX idx_product_reviews_product ON product_reviews(product_id);
-CREATE INDEX idx_product_reviews_user ON product_reviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_product_reviews_product ON product_reviews(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_reviews_user ON product_reviews(user_id);
 
 
 CREATE TABLE IF NOT EXISTS service_reviews (
@@ -586,54 +611,74 @@ LANGUAGE SQL
 AS $$
 WITH q AS (
   SELECT
-    NULLIF(BTRIM(query_text, E' \t\n\r\f\v'), '') AS qt,
-    websearch_to_tsquery('english', query_text) AS tsq
+    NULLIF(BTRIM(COALESCE(query_text, ''), E' \t\n\r\f\v'), '') AS qt,
+    CASE
+      WHEN NULLIF(BTRIM(COALESCE(query_text, ''), E' \t\n\r\f\v'), '') IS NULL
+        THEN NULL
+      ELSE websearch_to_tsquery('english', NULLIF(BTRIM(COALESCE(query_text, ''), E' \t\n\r\f\v'), ''))
+    END AS tsq
+),
+d AS (
+  SELECT
+    p.*,
+    c.slug AS category_slug,
+    (
+      setweight(to_tsvector('english', COALESCE(p.name,'')), 'A') ||
+      setweight(to_tsvector('english', COALESCE(p.summary,'')), 'B') ||
+      setweight(to_tsvector('english', COALESCE(p.description,'')), 'C')
+    ) AS doc
+  FROM products p
+  JOIN categories c ON c.id = p.category_id
 )
 SELECT
-  p.id AS product_id,
-  p.name AS product_name,
-  p.slug AS product_slug,
-  COALESCE(vmin.min_variant_price, p.price) AS product_price,
-  c.slug AS category_slug,
-  ts_rank(
-    setweight(to_tsvector('english', COALESCE(p.name,'')), 'A') ||
-    setweight(to_tsvector('english', COALESCE(p.description,'')), 'C'),
-    q.tsq
-  ) AS search_rank
-FROM products p
-JOIN categories c ON c.id = p.category_id
+  d.id AS product_id,
+  d.name AS product_name,
+  d.slug AS product_slug,
+  COALESCE(vmin.min_variant_price, d.price) AS product_price,
+  d.category_slug,
+  CASE
+    WHEN q.qt IS NULL OR COALESCE(q.tsq::TEXT, '') = '' THEN 0
+    ELSE ts_rank(d.doc, q.tsq)
+  END AS search_rank
+FROM d
 CROSS JOIN q
 LEFT JOIN LATERAL (
   SELECT MIN(v.price) AS min_variant_price
   FROM product_variants v
-  WHERE v.product_id = p.id
+  WHERE v.product_id = d.id
 ) vmin ON TRUE
-WHERE p.status = 'active'
-  AND q.qt IS NOT NULL
+WHERE d.status = 'active'
   AND (
+    q.qt IS NULL
+    OR
     (
-      setweight(to_tsvector('english', COALESCE(p.name,'')), 'A') ||
-      setweight(to_tsvector('english', COALESCE(p.description,'')), 'C')
-    ) @@ q.tsq
-    OR (q.tsq::TEXT = '' AND p.name ILIKE '%' || q.qt || '%')
+      (COALESCE(q.tsq::TEXT, '') <> '' AND d.doc @@ q.tsq)
+      OR
+      (COALESCE(q.tsq::TEXT, '') = '' AND (
+        d.name ILIKE '%' || q.qt || '%'
+        OR COALESCE(d.summary,'') ILIKE '%' || q.qt || '%'
+        OR COALESCE(d.description,'') ILIKE '%' || q.qt || '%'
+      ))
+    )
   )
-  AND (category_slugs IS NULL OR c.slug = ANY(category_slugs))
+  AND (category_slugs IS NULL OR d.category_slug = ANY(category_slugs))
   AND (
-    (p.has_variants = FALSE AND
-      (min_price IS NULL OR p.price >= min_price) AND
-      (max_price IS NULL OR p.price <= max_price)
+    (d.has_variants = FALSE AND
+      (min_price IS NULL OR d.price >= min_price) AND
+      (max_price IS NULL OR d.price <= max_price)
     )
     OR
-    (p.has_variants = TRUE AND EXISTS (
+    (d.has_variants = TRUE AND EXISTS (
       SELECT 1 FROM product_variants v
-      WHERE v.product_id = p.id
+      WHERE v.product_id = d.id
         AND (min_price IS NULL OR v.price >= min_price)
         AND (max_price IS NULL OR v.price <= max_price)
     ))
   )
-ORDER BY search_rank DESC, p.created_at DESC
+ORDER BY search_rank DESC, d.created_at DESC
 LIMIT limit_count OFFSET offset_count;
 $$;
+
 
 
 -- Cart + checkout helpers

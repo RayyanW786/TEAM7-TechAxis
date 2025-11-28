@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Models;
-use Illuminate\Database\Eloquent\HasFactory;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 class ShoppingCart extends Model
 {
@@ -27,20 +29,23 @@ class ShoppingCart extends Model
 
     public function items(): mixed
     {
-        return $this->hasMany(CartItem::class, 'cart_id')->OrderBy('id');
+        return $this->hasMany(CartItem::class, 'cart_id')->orderBy('id');
     }
-
 
     public function addItem(int $productId, ?int $variantId, int $quantity, ?string $unitPrice = null): void
     {
-        $unitPrice = $unitPrice ?? $this->resolveUnitPrice($productId, $variantId);
+        if ($quantity < 1) {
+            throw new InvalidArgumentException('Quantity must be at least 1.');
+        }
+
+        $resolvedUnitPrice = $unitPrice ?? $this->resolveUnitPrice($productId, $variantId);
 
         DB::statement('select fn_add_to_cart (?, ?, ?, ?, ?)', [
             $this->id,
             $productId,
             $variantId,
             $quantity,
-            $unitPrice
+            $resolvedUnitPrice,
         ]);
 
         $this->refresh();
@@ -48,14 +53,16 @@ class ShoppingCart extends Model
 
     public function updateItemQuantity(int $cartItemId, int $quantity): void
     {
-        DB::statement(
-            'select fn_update_cart_item_quantity(?, ?)',
-            [
-                $cartItemId,
-                $quantity
-            ]
-        );
-        $this->refresh;
+        if ($quantity < 1) {
+            throw new InvalidArgumentException('Quantity must be at least 1.');
+        }
+
+        DB::statement('select fn_update_cart_item_quantity(?, ?)', [
+            $cartItemId,
+            $quantity,
+        ]);
+
+        $this->refresh();
     }
 
     public function removeItem(int $productId, ?int $variantId): void
@@ -75,7 +82,9 @@ class ShoppingCart extends Model
             [$this->id, $userId, $billingAddressId, $shippingAddressId, $discountCode]
         );
 
-        return Order::query()->with(['items', 'shipments', 'discountRedemptions.discountCode'])->findOrFail((int) $row->order_id);
+        return Order::query()
+            ->with(['items', 'shipments', 'discountRedemptions.discountCode'])
+            ->findOrFail((int) $row->order_id);
     }
 
     protected function resolveUnitPrice(int $productId, ?int $variantId): string
@@ -90,5 +99,4 @@ class ShoppingCart extends Model
             ->where('id', $productId)
             ->value('price');
     }
-
 }

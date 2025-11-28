@@ -1,0 +1,26 @@
+.status { opacity: 0.8; margin-bottom: 12px; }
+
+.items { display: grid; gap: 10px; }
+
+.item {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+}
+
+.item-name { font-weight: 900; }
+.item-meta { opacity: 0.75; }
+.item-line { text-align: right; font-weight: 900; }
+
+.total {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+}

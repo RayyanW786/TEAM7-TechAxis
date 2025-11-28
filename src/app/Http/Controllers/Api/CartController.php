@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Address;
 use App\Models\ProductVariant;
 use App\Models\ShoppingCart;
 use Illuminate\Http\Request;
@@ -50,7 +51,7 @@ class CartController extends ApiController
         $cart = $this->resolveCart($request);
 
         $data = $request->validate([
-            'quantity' => ['required', 'integer'],
+            'quantity' => ['required', 'integer', 'min:1'],
         ]);
 
         $cart->updateItemQuantity($cartItemId, (int) $data['quantity']);
@@ -80,19 +81,34 @@ class CartController extends ApiController
     {
         $cart = $this->resolveCart($request);
 
+        $user = $request->user();
+        abort_unless($user, 401);
+
         $data = $request->validate([
-            'billing_address_id' => ['nullable', 'integer', 'exists:addresses,id'],
-            'shipping_address_id' => ['nullable', 'integer', 'exists:addresses,id'],
+            'billing_address_id' => ['required', 'integer', 'exists:addresses,id'],
+            'shipping_address_id' => ['required', 'integer', 'exists:addresses,id'],
             'discount_code' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string'],
         ]);
 
+        $billingOwns = Address::query()
+            ->whereKey((int) $data['billing_address_id'])
+            ->where('user_id', $user->id)
+            ->exists();
+        abort_unless($billingOwns, 404);
+
+        $shippingOwns = Address::query()
+            ->whereKey((int) $data['shipping_address_id'])
+            ->where('user_id', $user->id)
+            ->exists();
+        abort_unless($shippingOwns, 404);
+
         try {
-            $order = DB::transaction(function () use ($request, $cart, $data) {
+            $order = DB::transaction(function () use ($user, $cart, $data) {
                 $order = $cart->checkout(
-                    $request->user()?->id,
-                    $data['billing_address_id'] ?? null,
-                    $data['shipping_address_id'] ?? null,
+                    $user->id,
+                    (int) $data['billing_address_id'],
+                    (int) $data['shipping_address_id'],
                     $data['discount_code'] ?? null
                 );
 
@@ -114,22 +130,52 @@ class CartController extends ApiController
 
     protected function resolveCart(Request $request): ShoppingCart
     {
+        $session = $request->session();
         $user = $request->user();
 
         if ($user) {
+            // if a guest cart exists in session and the user has no cart yet, "claim" it
+            $guestCartId = $session->pull('cart_id');
+            
+            if ($guestCartId) {
+                $guestCart = ShoppingCart::query()
+                    ->whereKey((int) $guestCartId)
+                    ->whereNull('user_id')
+                    ->first();
+
+                if ($guestCart) {
+                    $existing = ShoppingCart::query()->where('user_id', $user->id)->first();
+
+                    if (!$existing) {
+                        $guestCart->user_id = $user->id;
+                        $guestCart->save();
+
+                        return $guestCart;
+                    }
+                }
+            }
+            
             return ShoppingCart::firstOrCreate(['user_id' => $user->id]);
         }
 
-        $cartId = $request->header('X-Cart-Id') ?? $request->query('cart_id');
+        $cartId = $session->get('cart_id');
 
         if ($cartId) {
-            $cart = ShoppingCart::query()->find($cartId);
+            $cart = ShoppingCart::query()
+                ->whereKey((int) $cartId)
+                ->whereNULL('user_id')
+                ->find($cartId);
 
             if ($cart) {
                 return $cart;
             }
-        }
 
-        return ShoppingCart::create(['user_id' => null]);
+            $session->forget('cart_id');
+        }
+        
+        $cart = ShoppingCart::create(['user_id' => null]);
+        $session->put('cart_id', $cart->id);
+
+        return $cart;
     }
 }
