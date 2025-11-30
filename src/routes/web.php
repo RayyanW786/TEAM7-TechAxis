@@ -9,5 +9,5 @@ Route::get('/', function () {
 });
 
 
-Route::get('/contact', [ContactController::class, 'index'])->name('contact.show');
-Route::post('/contact', [ContactController::class, 'store'])->name('contact.submit');
+Route::get('/contact', [ContactController::class, 'index'])->name('tickets.show');
+Route::post('/contact', [ContactController::class, 'store'])->name('tickets.submit');
