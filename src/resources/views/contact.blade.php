@@ -3,128 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech Axis | Contact Us</title>
+    <title>Tech Axis | Support Tickets</title>
+
     <style>
-       
-        body {
+        html, body {
+            height: 100%;
             margin: 0;
-            padding: 0;
             background: black;
             font-family: 'Segoe UI', Tahoma, sans-serif;
             color: white;
-        }
-
-        a {
-            text-decoration: none;
-            color: white;
-        }
-
-        
-        header {
-            background: black;
-            border-bottom: 5px solid red;
-            padding: 10px 50px;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-text {
-            font-size: 28px;
-            font-weight: bold;
-            color: red;
-        }
-
-        nav a {
-            margin: 0 15px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        nav a.active {
-            color: yellow;
-        }
-
-        .icons img {
-            width: 20px;
-            margin-left: 10px;
-            filter: invert(1);
-            cursor: pointer;
+        main {
+            flex: 1;
+            width: 85%;
+            margin: 0 auto;
+            padding-top: 30px;
         }
 
         .page-title {
-            margin-top: 30px;
             text-align: center;
             font-size: 36px;
             font-weight: bold;
-            border: 3px solid white;
+            border: 2px solid white;
             width: 40%;
-            margin-left: auto;
-            margin-right: auto;
+            margin-inline: auto;
             padding: 10px;
             letter-spacing: 2px;
         }
 
         .subtitle {
             background: #222;
-            width: 80%;
-            margin: 20px auto;
+            width: 90%;
+            margin: 18px auto;
             padding: 12px;
             border: 1px solid gray;
             font-size: 17px;
+            text-align: center;
         }
 
         .contact-container {
             display: flex;
-            width: 85%;
-            margin: 20px auto;
+            width: 90%;
+            margin: 25px auto;
             gap: 20px;
         }
 
-        
         .info-box {
             width: 30%;
             background: #1c1c1c;
-            border: 2px solid gray;
+            border: 1px solid gray;
             padding: 20px;
+            border-radius: 5px;
         }
 
         .info-title {
             font-size: 22px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             border-bottom: 1px solid gray;
-            padding-bottom: 5px;
+            padding-bottom: 8px;
+            text-align: center;
         }
 
         .info-item {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             font-size: 16px;
+            line-height: 1.6;
         }
 
-        .info-item img {
-            width: 18px;
-            margin-right: 8px;
-            filter: invert(1);
-        }
-
-        
         .form-box {
             width: 70%;
             background: #1c1c1c;
-            border: 2px solid gray;
+            border: 1px solid gray;
             padding: 20px;
+            border-radius: 5px;
         }
 
         .form-title {
             text-align: center;
             font-size: 20px;
-            margin-bottom: 20px;
+            font-weight: bold;
+            margin-bottom: 18px;
         }
 
         .form-row {
@@ -132,207 +93,133 @@
         }
 
         .form-row label {
-            width: 100px;
-            display: inline-block;
             font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
         }
 
         input, textarea {
             background: black;
             border: 1px solid gray;
             color: white;
-            padding: 6px;
-            width: 60%;
+            padding: 8px;
+            width: 100%;
+            border-radius: 4px;
         }
 
         textarea {
-            height: 100px;
+            height: 120px;
             resize: none;
         }
 
         .send-btn {
-            float: right;
             margin-top: 10px;
-            padding: 10px 18px;
+            padding: 12px;
             background: red;
             color: white;
             font-weight: bold;
             border: none;
+            width: 100%;
+            font-size: 17px;
+            border-radius: 5px;
             cursor: pointer;
         }
 
-        
-        footer {
-            margin-top: 50px;
-            background: red;
-            padding: 10px;
+        .success-msg {
             text-align: center;
-            color: white;
-            border-top: 5px solid white;
-            font-weight: 600;
-        }
-
-        footer a {
-            margin: 0 15px;
-            color: white;
+            font-size: 18px;
             font-weight: bold;
+            margin-top: 15px;
+            color: lime;
+            padding: 10px;
+            border: 1px solid lime;
+            border-radius: 5px;
+            background: #000;
+            display: none; 
         }
 
-       
-    @media (max-width: 900px) {
-
-    
-        .contact-container {
-            flex-direction: column;
-            width: 95%;
+        @media (max-width: 900px) {
+            .contact-container {
+                flex-direction: column;
+            }
+            .info-box, .form-box {
+                width: 100%;
+            }
+            .page-title {
+                width: 80%;
+                font-size: 26px;
+            }
         }
-
-        .info-box, .form-box {
-            width: 100%;
-        }
-
-        input, textarea {
-            width: 90%;
-        }
-
-        .form-row label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .page-title {
-            width: 80%;
-            font-size: 28px;
-        }
-
-        nav a {
-            margin: 0 8px;
-            font-size: 16px;
-        }
-
-        header {
-            flex-direction: column;
-            text-align: center;
-            gap: 10px;
-        }
-
-        .icons img {
-            width: 18px;
-        }
-}
-
     </style>
 </head>
 
 <body>
 
-    
-    <header>
-        <div class="logo">
-            <img src="Logo.png" width="150">
-        </div>
-
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">Shop</a>
-            <a href="#">About</a>
-            <a class="active" href="#">Contact</a>
-            <a href="#">Account</a>
-        </nav>
-
-        <div class="icons">
-            <img src="https://cdn-icons-png.flaticon.com/512/622/622669.png">
-            <img src="https://cdn-icons-png.flaticon.com/512/1170/1170678.png">
-        </div>
-    </header>
-
-    <main> 
-    
-    <div class="page-title">CONTACT US</div>
+<main>
+    <div class="page-title">SUPPORT</div>
 
     <div class="subtitle">
-        Get in touch: &nbsp; Have questions about our products or need support?  
-        <b>We're here to help!</b>
+        Need help? Submit a ticket below and we’ll respond inside the website.
     </div>
 
     <div class="contact-container">
 
-       
         <div class="info-box">
-            <div class="info-title">Contact INFO</div>
-
-            <div class="info-item">
-                <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png"> 
-                <b>Address:</b><br> Tech Axis HQ, Birmingham, UK
-            </div>
-
-            <div class="info-item">
-                <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png">
-                <b>Phone:</b><br> +44 7900 123456
-            </div>
-
-            <div class="info-item">
-                <img src="https://cdn-icons-png.flaticon.com/512/561/561127.png">
-                <b>Email:</b><br> support@TechAxis.co.uk
-            </div>
-
-            <div class="info-item">
-                <img src="https://cdn-icons-png.flaticon.com/512/2088/2088617.png">
-                <b>Hours:</b><br>
-                Mon–Fri 09:00–18:00 <br>
-                Sat 10:00–16:00
-            </div>
+            <div class="info-title">Contact Info</div>
+            <div class="info-item"><b>Address:</b><br>Tech Axis HQ, Birmingham, UK</div>
+            <div class="info-item"><b>Phone:</b><br>+44 7900 123456</div>
+            <div class="info-item"><b>Email:</b><br>Replies via website panel</div>
+            <div class="info-item"><b>Working Hours:</b><br>Mon–Fri 09:00–18:00<br>Sat 10:00–16:00</div>
         </div>
 
-        
         <div class="form-box">
-            <div class="form-title">[Contact Form]</div>
+            <div class="form-title">Submit a Ticket</div>
 
-           
-            @if(session('success'))
-                <p style="color: lightgreen; font-weight: bold; text-align:center;">
-                    {{ session('success') }}
-                </p>
-            @endif
-
-            <form action="{{ route('contact.submit') }}" method="POST">
-                @csrf
+            
+            <form id="ticketForm" action="{{ route('tickets.submit') }}" method="POST">
+                
 
                 <div class="form-row">
-                    <label>Full Name:</label>
-                    <input type="text" name="full_name" placeholder="Enter your name" required>
+                    <label>Full Name</label>
+                    <input type="text" name="ticket_name" placeholder="Your name" required>
                 </div>
 
                 <div class="form-row">
-                    <label>Email:</label>
-                    <input type="email" name="email" placeholder="Enter your email" required>
+                    <label>Email</label>
+                    <input type="email" name="ticket_email" placeholder="Your email" required>
                 </div>
 
                 <div class="form-row">
-                    <label>Subject:</label>
-                    <input type="text" name="subject" placeholder="Subject" required>
+                    <label>Subject</label>
+                    <input type="text" name="ticket_subject" placeholder="Issue title" required>
                 </div>
 
                 <div class="form-row">
-                    <label>Message:</label>
-                    <textarea name="message" placeholder="Type your message here..." required></textarea>
+                    <label>Message</label>
+                    <textarea name="ticket_message" placeholder="Describe your issue..." required></textarea>
                 </div>
 
-                <button class="send-btn" type="submit">SEND MESSAGE</button>
+                <button class="send-btn" type="submit">SEND TICKET</button>
+
+                <div id="successMessage" class="success-msg">
+                    ✅ Ticket Submitted Successfully!
+                </div>
+
             </form>
         </div>
+
     </div>
-    </main>
+</main>
 
-
-    <footer>
-        <a href="#">About</a>
-        <a href="#">Contact</a>
-        <a href="#">Support</a>
-        &nbsp;&nbsp; | &nbsp;&nbsp;
-        © 2025 Tech Axis
-    </footer>
+<script>
+    
+    document.getElementById("ticketForm").addEventListener("submit", function (e) {
+        e.preventDefault(); 
+        document.getElementById("successMessage").style.display = "block";
+    });
+</script>
 
 </body>
 </html>
+
 
