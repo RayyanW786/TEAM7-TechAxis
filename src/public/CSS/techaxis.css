@@ -278,6 +278,14 @@ margin-top: 1.5rem;
    
 }
 
+.featured-item:hover {
+ border-color: var(--tech-red);
+ transform: translateY(-8px) scale(1.02);
+box-shadow: 0 12px 25px rgba(255, 0, 0, 0.3);
+
+}
+
+
 .product-card:hover {
     transform: translateY(-5px) scale(1.02);
     box-shadow: 0 8px 20px rgba(255, 0, 0, 0.2);
