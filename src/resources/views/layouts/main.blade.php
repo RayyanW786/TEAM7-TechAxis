@@ -22,7 +22,7 @@
 
     @include('partials.navbar')
 
-    <main>
+    <main class="main-box">
         @yield('content')
     </main>
 
