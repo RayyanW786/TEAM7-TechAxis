@@ -8,8 +8,6 @@
 
     <title>@yield('title', 'Tech Axis')</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="{{ asset('css/storefront.css') }}">
     <link href="{{ asset('css/global.css') }}" rel="stylesheet">
     <link
@@ -24,11 +22,10 @@
 
     @include('partials.navbar')
 
-    <main class="container py-4">
+    <main>
         @yield('content')
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
 
     @include('partials.footer')
