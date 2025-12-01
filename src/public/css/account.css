@@ -1,0 +1,168 @@
+body {
+    margin: 0;
+    font-family: "Roboto", Arial, sans-serif;
+    background-color: #0F0F0F; /* main background */
+    color: #FFFFFF;
+}
+
+/* This puts the account area roughly between nav bar and footer */
+.account-page {
+    min-height: calc(100vh - 250px);   
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;             
+    box-sizing: border-box;
+}
+
+/* Background behind the three cards */
+.account-panel {
+    padding: 32px 48px;
+    max-width: 1650px;
+    width: 90%;
+    background-color: #1A1A1A;
+    box-sizing: border-box;
+}
+
+/* "Account Area" title */
+.account-heading {
+    margin: 0 0 22px 0;
+    font-size: 28px;
+    font-weight: 700;
+    font-family: "Orbitron", "Roboto", Arial, sans-serif;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+/* Layout for LOGIN, REGISTER & DASHBOARD */
+.account-columns {
+    display: flex;
+    gap: 16px;
+}
+
+.account-card {
+    display: flex;
+    flex-direction: column;
+    color: #333333;
+}
+
+/* Widths: This makes the dashboard wider than the login & register */
+.account-card-login {
+    flex: 0.85;
+}
+
+.account-card-register {
+    flex: 0.85;
+}
+
+.account-card-dashboard {
+    flex: 1.1;
+}
+
+/* Card headers (LOGIN, REGISTER & DASHBOARD) */
+
+/* Top tab */
+.account-card-header {
+    background-color: #D9D9D9;
+    color: #000000;
+    border: 3px solid #000000;
+    text-align: center;
+    font-weight: 700;
+    padding: 8px 0;
+    text-transform: uppercase;
+    font-family: "Orbitron", "Roboto", Arial, sans-serif;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+    margin-bottom: 8px;
+}
+
+/* Main box */
+.account-card-body {
+    border: 3px solid #000000;   
+    background-color: #D4D4D4;  /* light grey card background */
+    padding: 16px 18px;
+    font-size: 15px;
+}
+
+/* login + dashboard text */
+.account-helper-text {
+    margin: 0 0 8px 0;
+}
+
+/* Makes all 3 cards the same height */
+.equal-height {
+    height: 260px;              
+}
+
+/* Register form styling */
+
+.register-field-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.register-label {
+    width: 80px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333333;
+}
+
+.register-input {
+    flex: 1;
+    padding: 5px 6px;
+    border: 1px solid #666666;
+    background-color: #FFFFFF;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+/* "Register" button under the form */
+.register-button {
+    margin-top: 8px;
+    padding: 6px 16px;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    background-color: #DC2626;
+    color: #FFFFFF;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.register-button:hover {
+    filter: brightness(1.08);
+}
+
+/* Error message under the "Register" button */
+.register-error {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #DC2626;   /* same red as button / brand */
+}
+
+/* Dashboard bullet point spacing */
+.account-card-body ul {
+    padding-left: 18px;
+    margin: 8px 0 0 0;
+}
+
+/* Mobile view - cards will go underneath each other */
+@media (max-width: 900px) {
+    .account-panel {
+        padding: 20px;
+    }
+
+    .account-columns {
+        flex-direction: column;
+    }
+
+    .account-card {
+        width: 100%;
+    }
+}
