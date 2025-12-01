@@ -1,9 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Lato:wght@300;400;700&family=Roboto:wght@300;400;700&display=swap');
 
+.main-box{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
 .card {
   background: #1C1C1C;
-  margin-top: 5rem;
   padding: 2rem;
   width: 600px;
   border-radius: 16px;
