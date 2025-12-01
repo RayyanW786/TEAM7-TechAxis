@@ -9,6 +9,7 @@ use App\Http\Controllers\Storefront\OrderPageController;
 use Illuminate\Support\Facades\Auth;
 
 
+// Home page
 Route::get('/', function () {
     return view('home');
 });
@@ -27,6 +28,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 });
+
+// About page
+Route::view('/about', 'about')->name('about');
 Route::get('/customer/dashboard', function () {
     return view('customer.dashboard');
 })->middleware('auth')->name('customer.dashboard');
