@@ -38,8 +38,10 @@ Route::view('/about', 'about')->name('about');
 // Contact page
 Route::view('/contact', 'contact')->name('contact');
 
+Route::view('/orders', 'admin.orders')->middleware('auth')->name('orders');
+
 Route::get('/customer/dashboard', function () {
-    return view('customer.dashboard');
+    return view('customerDashboard');
 })->middleware('auth')->name('customer.dashboard');
 Route::get('/dashboard', function () {
     if (!Auth::user()) {
