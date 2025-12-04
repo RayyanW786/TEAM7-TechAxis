@@ -34,8 +34,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 // About page
 Route::view('/about', 'about')->name('about');
+
+// Contact page
+Route::view('/contact', 'contact')->name('contact');
+
+Route::view('/orders', 'admin.orders')->middleware('auth')->name('orders');
+
 Route::get('/customer/dashboard', function () {
-    return view('customer.dashboard');
+    return view('customerDashboard');
 })->middleware('auth')->name('customer.dashboard');
 Route::get('/dashboard', function () {
     if (!Auth::user()) {
@@ -60,3 +66,4 @@ Route::get('/checkout', [CheckoutPageController::class, 'show'])
 Route::get('/orders/{order}', [OrderPageController::class, 'show'])
     ->middleware('auth')
     ->name('orders.show');
+Route::view('/under-construction', 'undersconstruction')->name('under-construction');

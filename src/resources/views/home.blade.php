@@ -32,7 +32,7 @@ By E
 
         <div class="category-boxes">
 
-            <a href="{{ route('products.index', ['category' => 'consoles']) }}" class="category-item">
+            <a href="{{ route('products.index', ['category' => 'consoles-accessories']) }}" class="category-item">
                 <div class="category-icon">🎮</div>
                 <h3>Consoles & Accessories</h3>
             </a>
@@ -40,17 +40,17 @@ By E
                 <div class="category-icon">🖥️</div>
                 <h3>PC Gaming</h3>
             </a>
-            <a href="{{ route('products.index', ['category' => 'merch']) }}" class="category-item">
+            <a href="{{ route('products.index', ['category' => 'merchandise']) }}" class="category-item">
                 <div class="category-icon">👕</div>
                 <h3>Merchandise</h3>
             </a>
-            <a href="{{ route('products.index', ['category' => 'components']) }}" class="category-item">
+            <a href="{{ route('products.index', ['category' => 'pc-components']) }}" class="category-item">
                 <div class="category-icon">⚙️</div>
                 <h3>PC Components</h3>
             </a>
 
             </a>
-            <a href="{{ route('products.index', ['category' => 'phones']) }}" class="category-item">
+            <a href="{{ route('products.index', ['category' => 'phones-gadgets']) }}" class="category-item">
                 <div class="category-icon">📱</div>
                 <h3>Phones & Gadgets</h3>
             </a>

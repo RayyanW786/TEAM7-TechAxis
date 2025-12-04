@@ -54,7 +54,7 @@ Route::middleware(['web'])->group(function () {
 
         Route::get('/tickets', [SupportTicketController::class, 'index']);
         Route::get('/tickets/{ticket}', [SupportTicketController::class, 'show']);
-        Route::post('/tickets', [SupportTicketController::class, 'store']);
+        Route::post('/tickets', [SupportTicketController::class, 'store'])->name('tickets.submit');
         Route::post('/tickets/{ticket}/messages', [SupportTicketController::class, 'addMessage']);
 
         Route::get('/returns', [ReturnRequestController::class, 'index']);

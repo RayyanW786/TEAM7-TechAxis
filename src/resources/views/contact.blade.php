@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech Axis | Support Tickets</title>
-
+@extends('layouts.main')
+@section('title', 'Tech Axis | Support Tickets')
+@push('styles')
     <style>
         html, body {
-            height: 100%;
+            height: auto;
             margin: 0;
             background: black;
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -45,6 +41,7 @@
         }
 
         .contact-container {
+            height: auto;
             display: flex;
             width: 90%;
             margin: 25px auto;
@@ -151,11 +148,8 @@
             }
         }
     </style>
-</head>
-
-<body>
-
-<main>
+    @endpush
+@section('content')
     <div class="page-title">SUPPORT</div>
 
     <div class="subtitle">
@@ -209,7 +203,8 @@
         </div>
 
     </div>
-</main>
+@endsection
+@push('scripts')
 
 <script>
     
@@ -218,8 +213,6 @@
         document.getElementById("successMessage").style.display = "block";
     });
 </script>
-
-</body>
-</html>
+@endpush
 
 
