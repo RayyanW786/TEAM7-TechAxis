@@ -18,7 +18,6 @@ html, body {
     height: 100%;
 }
 body {
-  color: var(--tech-light);
     line-height: 1.6;
     font-family: 'Roboto', Arial, sans-serif;
     background-color: var(--tech-black);

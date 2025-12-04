@@ -13,12 +13,12 @@
                 <br>
                 Manage customer orders   
             </a>
-            <a href="" class="admin-panel">
+            <a href="{{ route('under-construction') }}" class="admin-panel">
                 <strong>🛒 Products</strong>
                 <br>
                 Manage product listings and stock
             </a>
-            <a href="" class="admin-panel">
+            <a href="{{ route('under-construction') }}" class="admin-panel">
                 <strong>🔐 Change Password</strong>
             </a>
             <a href="{{ route('home') }}" class="admin-panel"
