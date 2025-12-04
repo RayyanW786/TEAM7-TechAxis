@@ -8,27 +8,17 @@ use App\Http\Controllers\Storefront\CheckoutPageController;
 use App\Http\Controllers\Storefront\OrderPageController;
 use Illuminate\Support\Facades\Auth;
 
-// For now the account page loads everything (login/register/dashboard)
-
-// Main Page - just shows the account section for now
-Route::get('/', function () {
-    return view('account');
-});
-
-// Account Page (LOGIN, REGISTER & Dashboard Layout)
-Route::get('/account', function () {
-    return view('account');
 
 // Home page
 Route::get('/', function () {
     return view('home');
-});
+})->name('home');
 Route::get('/register', function () {
     return view('register');
-});
+})->name('register.page');
 Route::get('/login', function () {
     return view('login');
-});
+})->name('login.page');
 Route::post('/register', [UsersController::class, 'register'])->name('register');
 Route::post('/login', [UsersController::class, 'login'])->name('login');
 Route::post('/logout', [UsersController::class, 'logout'])->name('logout');
@@ -37,6 +27,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
+    Route::get('/admin/orders', function () {
+        return view('admin.orders');
+    })->name('admin.orders');
 });
 
 // About page
