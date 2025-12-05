@@ -61,66 +61,22 @@ By E
     <!-- Featured Items -->
     <section class="item section">
         <h2 class="section-heading">Featured Items</h2>
-        <div class="featured-grid">
 
-            <!--  1st product  -->
-            <div class="featured-item">
+        <div
+            class="featured-grid"
+            id="featured-products-grid"
+            data-api-url="{{ url('/api/products/featured?limit=4') }}"
+            data-product-base-url="{{ url('/products') }}"
+        ></div>
 
-                <img src="{{asset('images/mouse.jpg') }}" alt="Quantum Pro Gaming Mouse" class="product-image">
-                <h3 class="product-title"><a href="{{ url('/product/1') }}">Quantum Pro Gaming Mouse
-
-                    </a></h3>
-
-                <p>High-precision RGB gaming mouse with customizable buttons</p>
-                <div class="product-price">£79.99</div>
-                <a href="{{ url('/cart') }}" class="primary-btn">Add to Cart</a>
-            </div>
-
-            <!--  2nd product  -->
-
-            <div class="featured-item">
-
-                <img src="{{asset('images/keyboard.jpg') }}" alt="Mechanical Keyboard" class="product-image">
-                <h3 class="product-title"><a href="{{ url('/product/1') }}">Corsair K100 RGB Mechanical Keyboard
-
-                    </a></h3>
-
-
-                <p> gaming keyboard with OPX optical-mechanical switches</p>
-                <div class="product-price">£129.99</div>
-                <a href="{{ url('/cart') }}" class="primary-btn">Add to Cart</a>
-            </div>
-
-
-            <!--  3rd product  -->
-            <div class="featured-item">
-
-                <img src="{{asset('images/monitor.jpg') }}" alt="Mechanical Keyboard" class="product-image">
-                <h3 class="product-title"><a href="{{ url('/product/1') }}">Gaming Monitor
-
-                    </a></h3>
-
-                <p>ASUS ROG Swift PG279QM, 27" 1440p gaming monitor with 240Hz refresh rate</p>
-                <div class="product-price">£399.99</div>
-                <a href="{{ url('/cart') }}" class="primary-btn">Add to Cart</a>
-            </div>
-
-
-
-            <!--  4th product  -->
-            <div class="featured-item">
-
-                <img src="{{asset('images/headset.jpg') }}" alt="Mechanical Keyboard" class="product-image">
-                <h3 class="product-title"><a href="{{ url('/product/1') }}">Wireless Headset
-
-                    </a></h3>
-
-                <p>Multi-platform gaming headset with active noise cancellation</p>
-                <div class="product-price">£149.99</div>
-                <a href="{{ url('/cart') }}" class="primary-btn">Add to Cart</a>
-            </div>
-
-        </div>
+        <noscript>
+            <p style="text-align:center; opacity:.8;">Enable JavaScript to see featured products.</p>
+        </noscript>
     </section>
+    
+    @push('scripts')
+        <script src="{{ asset('js/home-featured-products.js') }}" defer></script>
+    @endpush
+
 
 @endsection
