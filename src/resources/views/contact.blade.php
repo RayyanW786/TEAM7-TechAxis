@@ -1,218 +1,80 @@
 @extends('layouts.main')
-@section('title', 'Tech Axis | Support Tickets')
+@section('title', 'Tech Axis | Support')
+
 @push('styles')
-    <style>
-        html, body {
-            height: auto;
-            margin: 0;
-            background: black;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            color: white;
-            display: flex;
-            flex-direction: column;
-        }
-
-        main {
-            flex: 1;
-            width: 85%;
-            margin: 0 auto;
-            padding-top: 30px;
-        }
-
-        .page-title {
-            text-align: center;
-            font-size: 36px;
-            font-weight: bold;
-            border: 2px solid white;
-            width: 40%;
-            margin-inline: auto;
-            padding: 10px;
-            letter-spacing: 2px;
-        }
-
-        .subtitle {
-            background: #222;
-            width: 90%;
-            margin: 18px auto;
-            padding: 12px;
-            border: 1px solid gray;
-            font-size: 17px;
-            text-align: center;
-        }
-
-        .contact-container {
-            height: auto;
-            display: flex;
-            width: 90%;
-            margin: 25px auto;
-            gap: 20px;
-        }
-
-        .info-box {
-            width: 30%;
-            background: #1c1c1c;
-            border: 1px solid gray;
-            padding: 20px;
-            border-radius: 5px;
-        }
-
-        .info-title {
-            font-size: 22px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid gray;
-            padding-bottom: 8px;
-            text-align: center;
-        }
-
-        .info-item {
-            margin-bottom: 18px;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-
-        .form-box {
-            width: 70%;
-            background: #1c1c1c;
-            border: 1px solid gray;
-            padding: 20px;
-            border-radius: 5px;
-        }
-
-        .form-title {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 18px;
-        }
-
-        .form-row {
-            margin-bottom: 15px;
-        }
-
-        .form-row label {
-            font-weight: 600;
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        input, textarea {
-            background: black;
-            border: 1px solid gray;
-            color: white;
-            padding: 8px;
-            width: 100%;
-            border-radius: 4px;
-        }
-
-        textarea {
-            height: 120px;
-            resize: none;
-        }
-
-        .send-btn {
-            margin-top: 10px;
-            padding: 12px;
-            background: red;
-            color: white;
-            font-weight: bold;
-            border: none;
-            width: 100%;
-            font-size: 17px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .success-msg {
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 15px;
-            color: lime;
-            padding: 10px;
-            border: 1px solid lime;
-            border-radius: 5px;
-            background: #000;
-            display: none; 
-        }
-
-        @media (max-width: 900px) {
-            .contact-container {
-                flex-direction: column;
-            }
-            .info-box, .form-box {
-                width: 100%;
-            }
-            .page-title {
-                width: 80%;
-                font-size: 26px;
-            }
-        }
-    </style>
-    @endpush
-@section('content')
-    <div class="page-title">SUPPORT</div>
-
-    <div class="subtitle">
-        Need help? Submit a ticket below and we’ll respond inside the website.
-    </div>
-
-    <div class="contact-container">
-
-        <div class="info-box">
-            <div class="info-title">Contact Info</div>
-            <div class="info-item"><b>Address:</b><br>Tech Axis HQ, Birmingham, UK</div>
-            <div class="info-item"><b>Phone:</b><br>+44 7900 123456</div>
-            <div class="info-item"><b>Email:</b><br>Replies via website panel</div>
-            <div class="info-item"><b>Working Hours:</b><br>Mon–Fri 09:00–18:00<br>Sat 10:00–16:00</div>
-        </div>
-
-        <div class="form-box">
-            <div class="form-title">Submit a Ticket</div>
-
-            
-            <form id="ticketForm" action="{{ route('tickets.submit') }}" method="POST">
-                
-
-                <div class="form-row">
-                    <label>Full Name</label>
-                    <input type="text" name="ticket_name" placeholder="Your name" required>
-                </div>
-
-                <div class="form-row">
-                    <label>Email</label>
-                    <input type="email" name="ticket_email" placeholder="Your email" required>
-                </div>
-
-                <div class="form-row">
-                    <label>Subject</label>
-                    <input type="text" name="ticket_subject" placeholder="Issue title" required>
-                </div>
-
-                <div class="form-row">
-                    <label>Message</label>
-                    <textarea name="ticket_message" placeholder="Describe your issue..." required></textarea>
-                </div>
-
-                <button class="send-btn" type="submit">SEND TICKET</button>
-
-                <div id="successMessage" class="success-msg">
-                    ✅ Ticket Submitted Successfully!
-                </div>
-
-            </form>
-        </div>
-
-    </div>
-@endsection
-@push('scripts')
-
-<script>
-    
-    document.getElementById("ticketForm").addEventListener("submit", function (e) {
-        e.preventDefault(); 
-        document.getElementById("successMessage").style.display = "block";
-    });
-</script>
+    <link href="{{ asset('css/support.css') }}" rel="stylesheet">
 @endpush
 
+@section('content')
+<div class="support-page">
+    <div class="support-header">
+        <h1 class="support-title">Support</h1>
+        <p class="support-subtitle">Create a ticket and view your previous conversations.</p>
+    </div>
 
+    @if(session('success'))
+        <div class="support-alert success">{{ session('success') }}</div>
+    @endif
+
+    @if($errors->any())
+        <div class="support-alert error">
+            <b>Please fix:</b>
+            <ul>
+                @foreach($errors->all() as $e)
+                    <li>{{ $e }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="support-grid">
+        <section class="support-card">
+            <div class="support-card-head">
+                <h2>Your Tickets</h2>
+            </div>
+
+            @forelse($tickets as $t)
+                <a class="ticket-row" href="{{ route('support.tickets.show', $t) }}">
+                    <div class="ticket-row-top">
+                        <div class="ticket-subject">{{ $t->subject }}</div>
+                        <div class="ticket-status">{{ str_replace('_', ' ', $t->status->value) }}</div>
+                    </div>
+                    <div class="ticket-row-bottom">
+                        Last updated: {{ \Carbon\Carbon::parse($t->last_message_at)->diffForHumans() }}
+                    </div>
+                </a>
+            @empty
+                <p class="muted">No tickets yet.</p>
+            @endforelse
+
+            <div class="support-pagination">
+                {{ $tickets->links() }}
+            </div>
+        </section>
+
+        <section class="support-card">
+            <div class="support-card-head">
+                <h2>Create New Ticket</h2>
+            </div>
+
+            <form method="POST" action="{{ route('support.tickets.store') }}" class="ticket-form">
+                @csrf
+
+                <label class="form-label">Subject</label>
+                <input class="form-input" name="subject" type="text" maxlength="200"
+                       value="{{ old('subject') }}" placeholder="e.g., Issue with my order" required>
+
+                <label class="form-label">Message</label>
+                <textarea class="form-textarea" name="body" rows="7" maxlength="5000"
+                          placeholder="Tell us what's going on..." required>{{ old('body') }}</textarea>
+
+                <button class="primary-btn" type="submit">Create Ticket</button>
+
+                <p class="muted small">
+                    Logged in as <b>{{ auth()->user()->name }}</b> ({{ auth()->user()->email }})
+                </p>
+            </form>
+        </section>
+    </div>
+</div>
+@endsection
