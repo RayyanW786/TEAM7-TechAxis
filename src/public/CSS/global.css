@@ -1,0 +1,167 @@
+/* 
+* Tech Axis Stylesheet
+* Author:Euan 240051695  (CSS Lead)
+* Course: CS2TP Team Project
+
+/* Tech Axis Colour Scheme/Pallete */
+
+:root {
+    --tech-red: #FF0000;
+    --tech-black: #000000;
+    --tech-dark: #1C1C1C;
+    --tech-light: #FFFFFF;
+    --tech-gray: #333333;
+}
+
+/* Web page total styling */
+html, body {
+    height: 100%;
+}
+body {
+    line-height: 1.6;
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: var(--tech-black);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+}
+main {
+    flex: 1;
+}
+footer {
+    margin-top: auto;
+}
+
+
+
+/* Navigation Menu & Header */
+
+
+.brand-logo img {
+width: 100%;
+height: auto;
+display: block;
+
+}
+
+.brand-logo {
+display: block;
+max-width: 200px
+    
+
+}
+
+.webpage-header {
+    border-bottom: 5px solid var(--tech-red);
+    border-top: 5px solid var(--tech-red);
+    border-left: 5px solid var(--tech-red);
+    border-right: 5px solid var(--tech-red);
+    background-color: var(--tech-dark);
+    padding: 0.3rem 0;
+
+}
+
+/* sticky navbar settings: 
+position: sticky;
+top: 0;
+z-index: 1000;
+*/
+
+
+.web-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    padding: 0;
+    margin: 0 auto;
+}
+
+
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav a {
+    color: var(--tech-light);
+    text-decoration: none;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 500;
+    transition: color 0.3s ease;
+     font-size: 1.4rem;
+}
+
+.main-nav a:hover {
+    color: var(--tech-red);
+}
+
+.user-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.user-controls a {
+    color: var(--tech-light);
+    text-decoration: none;
+    font-size: 2.0rem;
+    transition: color 0.3s ease;
+}
+
+.user-controls a:hover {
+    color: var(--tech-red);
+}
+
+/* Website Footer */
+
+.site-footer {
+    background-color: var(--tech-red);
+    padding: 0.5rem 0;
+    text-align: center;
+    border-top: 3px solid var(--tech-dark);
+}
+
+.footer-content p {
+    margin: 0.5rem 0;
+    color: #fff8f8;
+}
+
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+
+.footer-links a {
+    color: var(--tech-light);
+    text-decoration: none;
+    font-family: 'Orbitron', sans-serif;  
+    font-weight: 700;  
+    transition: color 0.3s ease;
+}
