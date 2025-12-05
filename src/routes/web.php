@@ -6,6 +6,7 @@ use App\Http\Controllers\Storefront\ProductPageController;
 use App\Http\Controllers\Storefront\CartPageController;
 use App\Http\Controllers\Storefront\CheckoutPageController;
 use App\Http\Controllers\Storefront\OrderPageController;
+use App\Http\Controllers\Storefront\SupportTicketPageController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -35,8 +36,19 @@ Route::middleware(['auth', 'admin'])->group(function () {
 // About page
 Route::view('/about', 'about')->name('about');
 
-// Contact page
-Route::view('/contact', 'contact')->name('contact');
+// Support / Tickets (customer side)
+Route::middleware('auth')->group(function () {
+    Route::get('/contact', [SupportTicketPageController::class, 'index'])->name('contact');
+
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::get('/tickets', [SupportTicketPageController::class, 'index'])->name('tickets.index');
+        Route::post('/tickets', [SupportTicketPageController::class, 'store'])->name('tickets.store');
+
+        Route::get('/tickets/{ticket}', [SupportTicketPageController::class, 'show'])->name('tickets.show');
+        Route::post('/tickets/{ticket}/messages', [SupportTicketPageController::class, 'storeMessage'])->name('tickets.messages.store');
+        Route::get('/tickets/{ticket}/messages', [SupportTicketPageController::class, 'messages'])->name('tickets.messages.index');
+    });
+});
 
 Route::view('/orders', 'admin.orders')->middleware('auth')->name('orders');
 
