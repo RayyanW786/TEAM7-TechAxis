@@ -11,7 +11,10 @@ class OrderPageController extends Controller
     public function show(Request $request, Order $order)
     {
         $user = $request->user();
-        abort_unless($user && (int) $order->user?->id === (int) $user->id, 404);
+        abort_unless(
+            $user && ($user->isAdmin() || (int) $order->user_id === (int) $user->id),
+            404
+        );
 
         $order->load(['items.product', 'items.variant']);
 
