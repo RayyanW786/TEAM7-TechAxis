@@ -15,15 +15,17 @@
                     <li><a href="{{ route('products.index') }}">Shop</a></li>
                     <li><a href="{{ url('/about') }}">About</a></li>
                     <li><a href="{{ url('/contact') }}">Contact</a></li>
-                    <li><a href="{{ url('/account') }}">Account</a></li>
-
+                    @auth
+                        <li><a href="{{ url('/dashboard') }}">Account</a></li>
+                    @endauth
                 </ul>
         </nav>
 
         <div class="user-controls">
             <a href="{{ route('cart.show') }}" title="Shopping Cart">🛒</a>
-            <a href="{{ url('/login') }}" title="Account">👤</a>
-
+            @guest
+                <a href="{{ url('/login') }}" title="Account">👤</a>
+            @endguest
         </div>
     </div>
 </header>
