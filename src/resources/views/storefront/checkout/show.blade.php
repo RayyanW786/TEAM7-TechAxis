@@ -3,16 +3,16 @@
 @section('title', 'Checkout')
 
 @section('content')
-<div class="d-flex align-items-center justify-content-between mb-3">
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 checkout-page-topbar">
     <h1 class="h3 mb-0">Checkout</h1>
-    <a class="btn btn-outline-secondary" href="{{ route('cart.show') }}">Back to cart</a>
+    <a class="btn btn-outline-secondary checkout-back-button" href="{{ route('cart.show') }}">Back to cart</a>
 </div>
 
 <div id="messageBox" class="d-none" role="alert"></div>
 
-<div class="row g-4">
-    <div class="col-12 col-lg-7">
-        <div class="card shadow-sm">
+<div class="row g-4 checkout-layout">
+    <div class="col-12 col-lg-7 checkout-main-column">
+        <div class="card shadow-sm checkout-main-card">
             <div class="card-body">
                 <h2 class="h5 mb-3">Delivery</h2>
 
@@ -104,15 +104,15 @@
         </div>
     </div>
 
-    <div class="col-12 col-lg-5">
-        <div class="card shadow-sm">
+    <div class="col-12 col-lg-5 checkout-summary-column">
+        <div class="card shadow-sm checkout-summary-card">
             <div class="card-body">
                 <h2 class="h5 mb-3">Summary</h2>
                 <div id="summaryContainer" class="list-group mb-3"></div>
 
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="fw-semibold">Total</span>
-                    <span class="fs-5 fw-bold" id="totalText">£0.00</span>
+                    <span class="fs-5 fw-bold" id="totalText">&pound;0.00</span>
                 </div>
             </div>
         </div>

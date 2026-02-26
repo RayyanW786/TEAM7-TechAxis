@@ -28,7 +28,7 @@ function formatAddress(address) {
   if (address.line1) parts.push(address.line1);
   if (address.city) parts.push(address.city);
   if (address.postal_code) parts.push(address.postal_code);
-  return parts.join(' • ');
+  return parts.join(' - ');
 }
 
 function syncBilling() {
@@ -75,19 +75,21 @@ function renderSummary(cart) {
 
   for (const item of cart.items || []) {
     const productName = item.product?.name ?? 'Product';
-    const variantTitle = item.variant?.title ? ` • ${item.variant.title}` : '';
+    const variantTitle = item.variant?.title ? ` - ${item.variant.title}` : '';
     const unitPrice = Number(item.unit_price || 0);
     const quantity = Number(item.quantity || 0);
     const line = unitPrice * quantity;
 
     const row = document.createElement('div');
-    row.className = 'list-group-item d-flex justify-content-between align-items-start gap-3';
+    row.className = 'list-group-item checkout-summary-item';
     row.innerHTML = `
-      <div>
-        <div class="fw-semibold">${escapeHtml(productName)}${escapeHtml(variantTitle)}</div>
-        <div class="text-muted small">${escapeHtml(String(quantity))} × ${escapeHtml(formatMoney(unitPrice))}</div>
+      <div class="checkout-summary-shell">
+        <div>
+          <div class="fw-semibold">${escapeHtml(productName)}${escapeHtml(variantTitle)}</div>
+          <div class="text-muted small">${escapeHtml(String(quantity))} x ${escapeHtml(formatMoney(unitPrice))}</div>
+        </div>
+        <div class="fw-semibold">${escapeHtml(formatMoney(line))}</div>
       </div>
-      <div class="fw-semibold">${escapeHtml(formatMoney(line))}</div>
     `;
     summaryContainer.appendChild(row);
   }

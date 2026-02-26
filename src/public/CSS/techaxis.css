@@ -273,6 +273,8 @@ margin-top: 1.5rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     padding: 20px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid var(--tech-gray);
    
@@ -326,6 +328,11 @@ box-shadow: 0 12px 25px rgba(255, 0, 0, 0.3);
     font-weight: 700;
     font-size: 1.3rem;
     margin: 10px 0;
+}
+
+.featured-item > .primary-btn {
+    width: 100%;
+    margin-top: auto;
 }
 
 .product-card .primary-btn {
@@ -489,4 +496,3 @@ box-shadow: 0 12px 25px rgba(255, 0, 0, 0.3);
         font-size: 0.95rem;
     }
 }
-
