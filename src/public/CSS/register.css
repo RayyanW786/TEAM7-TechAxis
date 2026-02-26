@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Roboto:wght@300;400;700&display=swap');
+
+.main-box {
+  display: block !important;
+  flex: 0 0 auto !important;
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 2rem 1rem 3rem !important;
+}
+
+.register-card {
+  background: #1c1c1c;
+  padding: 2rem;
+  width: min(680px, 100%);
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.4);
+  border: 2px solid #ff0000;
+}
+
+.register-card h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  color: #ff0000;
+}
+
+.register-card label {
+  display: block;
+  margin-top: 0.65rem;
+  margin-bottom: 0.2rem;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.95rem;
+}
+
+.register-card select,
+.register-card input {
+  width: 100%;
+  padding: 0.85rem;
+  margin: 0.45rem 0;
+  border-radius: 10px;
+  background: #000;
+  border: 2px solid #ff0000;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.register-card select:focus,
+.register-card input:focus {
+  outline: none;
+  box-shadow: 0 0 8px #ff0000;
+}
+
+.register-card button {
+  width: 100%;
+  padding: 0.85rem;
+  margin-top: 1rem;
+  background: #ff0000;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-family: 'Orbitron', sans-serif;
+  box-shadow: 0 4px 0 #660000;
+}
+
+.register-card button:hover {
+  background: #cc0000;
+}
+
+.error-messages {
+  border: 1px solid #ff0000;
+  border-radius: 10px;
+  background: rgba(255, 0, 0, 0.1);
+  color: #ffd4d4;
+  padding: 0.75rem 0.95rem;
+  margin-bottom: 0.8rem;
+}
+
+.error-messages ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.pw-checklist {
+  border: 1px solid #434343;
+  border-radius: 10px;
+  background: #121212;
+  padding: 0.75rem 0.85rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.pw-checklist-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.2px;
+  margin-bottom: 0.5rem;
+  color: #f2f2f2;
+}
+
+.pw-checklist ul {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.pw-rule {
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+  margin-bottom: 0.22rem;
+}
+
+.pw-rule.not-met {
+  color: #ff8f8f;
+}
+
+.pw-rule.is-met {
+  color: #8be9a5;
+}
+
+.auth-alt {
+  margin-top: 0.95rem;
+  text-align: center;
+}
+
+.auth-alt a {
+  color: #ff3f3f;
+}
+
+.d-none {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .register-card {
+    padding: 1.25rem;
+  }
+
+  .register-card h2 {
+    font-size: 1.45rem;
+  }
+}
