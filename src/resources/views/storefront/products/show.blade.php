@@ -7,18 +7,19 @@
     $summaryText = $product->summary ?: 'No Product summary found';
     $descriptionText = $product->description ?: 'No Product description found';
     $images = $product->images ?? collect();
+    $primaryImageUrl = optional($images->first())->url;
 @endphp
 
-<div class="d-flex align-items-center justify-content-between mb-3">
-    <a href="{{ route('products.index') }}" class="text-decoration-none">← Back to products</a>
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 product-page-topbar">
+    <a href="{{ route('products.index') }}" class="text-decoration-none">&larr; Back to products</a>
 
     <a href="{{ route('cart.show') }}" class="btn btn-outline-primary btn-sm">
         View cart
     </a>
 </div>
 
-<div class="row g-4">
-    <div class="col-12 col-lg-6">
+<div class="row g-4 product-detail-grid">
+    <div class="col-12 col-lg-6 product-media-column">
         <div class="card shadow-sm">
             <div class="card-body">
                 @if ($images->count() > 0)
@@ -50,7 +51,7 @@
                     </div>
 
                     @if ($images->count() > 1)
-                        <div class="d-flex gap-2 flex-wrap mt-3">
+                        <div class="d-flex gap-2 flex-wrap mt-3 product-thumbs">
                             @foreach ($images as $index => $img)
                                 <button
                                     type="button"
@@ -74,12 +75,12 @@
         </div>
     </div>
 
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-6 product-info-column">
         <h1 class="h3 section-title mb-1">{{ $product->name }}</h1>
         <div class="accent-rule mb-3"></div>
 
         <div class="fs-4 fw-semibold mb-3" id="priceText">
-            £{{ number_format((float) $effectivePrice, 2) }}
+            &pound;{{ number_format((float) $effectivePrice, 2) }}
         </div>
 
         <div class="card shadow-sm mb-3">
@@ -98,7 +99,7 @@
 
         <div id="messageBox" class="d-none" role="alert"></div>
 
-        <div class="card shadow-sm">
+        <div class="card shadow-sm purchase-card">
             <div class="card-body">
                 @if ($product->has_variants && $product->variants->count())
                     <div class="mb-3">
@@ -107,7 +108,7 @@
                             <option value="">Select...</option>
                             @foreach ($product->variants as $variant)
                                 <option value="{{ $variant->id }}" data-price="{{ $variant->price }}">
-                                    {{ $variant->title ?: $variant->sku }} — £{{ number_format((float) $variant->price, 2) }}
+                                    {{ $variant->title ?: $variant->sku }} - &pound;{{ number_format((float) $variant->price, 2) }}
                                 </option>
                             @endforeach
                         </select>
@@ -121,15 +122,33 @@
                     <div class="form-text">Must be a whole number (1 or more).</div>
                 </div>
 
-                <button
-                    id="addToCartButton"
-                    class="btn btn-primary w-100"
-                    type="button"
-                    data-product-id="{{ (int) $product->id }}"
-                    data-requires-variant="{{ $product->has_variants ? '1' : '0' }}"
-                >
-                    Add to cart
-                </button>
+                <div class="d-grid gap-2 product-action-buttons">
+                    <button
+                        id="addToCartButton"
+                        class="btn btn-primary"
+                        type="button"
+                        data-product-id="{{ (int) $product->id }}"
+                        data-requires-variant="{{ $product->has_variants ? '1' : '0' }}"
+                    >
+                        Add to cart
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary compare-toggle-button"
+                        data-compare-toggle
+                        data-product-id="{{ (int) $product->id }}"
+                        data-product-slug="{{ $product->slug }}"
+                        data-product-name="{{ $product->name }}"
+                        data-product-price="{{ number_format((float) $effectivePrice, 2, '.', '') }}"
+                        data-product-summary="{{ $summaryText }}"
+                        data-product-url="{{ route('products.show', $product) }}"
+                        data-product-image="{{ $primaryImageUrl ?: '' }}"
+                    >
+                        Add to compare
+                    </button>
+                </div>
+                <div class="form-text mt-2">Select up to two products to compare.</div>
             </div>
         </div>
     </div>
@@ -174,4 +193,5 @@
 
 @push('scripts')
 <script type="module" src="{{ asset('js/storefront/products-show.js') }}"></script>
+<script type="module" src="{{ asset('js/storefront/product-compare.js') }}"></script>
 @endpush

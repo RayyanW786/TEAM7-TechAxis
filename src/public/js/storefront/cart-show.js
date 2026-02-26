@@ -22,28 +22,28 @@ function renderCart(cart) {
 
   for (const item of items) {
     const productName = item.product?.name ?? 'Product';
-    const variantTitle = item.variant?.title ? ` • ${item.variant.title}` : '';
+    const variantTitle = item.variant?.title ? ` - ${item.variant.title}` : '';
     const unitPrice = Number(item.unit_price || 0);
     const quantityValue = Number(item.quantity || 1);
     const lineTotal = unitPrice * quantityValue;
 
     const row = document.createElement('div');
-    row.className = 'list-group-item';
+    row.className = 'list-group-item cart-line-item';
 
     row.innerHTML = `
-      <div class="d-flex justify-content-between align-items-start gap-3">
-        <div class="flex-grow-1">
+      <div class="cart-line-shell">
+        <div class="cart-line-meta">
           <div class="fw-semibold">${escapeHtml(productName)}${escapeHtml(variantTitle)}</div>
           <div class="text-muted small">${escapeHtml(formatMoney(unitPrice))} each</div>
         </div>
 
-        <div style="min-width: 240px;">
-          <div class="input-group input-group-sm">
+        <div class="cart-line-actions">
+          <div class="input-group input-group-sm cart-qty-group">
             <input class="form-control quantityInput" type="number" min="1" step="1" value="${quantityValue}">
             <button class="btn btn-outline-primary updateButton" type="button">Update</button>
             <button class="btn btn-outline-danger removeButton" type="button">Remove</button>
           </div>
-          <div class="text-muted small mt-1">Line: <span class="fw-semibold">${escapeHtml(formatMoney(lineTotal))}</span></div>
+          <div class="text-muted small mt-1">Line total: <span class="fw-semibold">${escapeHtml(formatMoney(lineTotal))}</span></div>
         </div>
       </div>
     `;
