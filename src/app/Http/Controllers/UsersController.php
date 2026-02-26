@@ -25,7 +25,7 @@ class UsersController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Password::min(8)],
+            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
             'role' => ['required', Rule::in(['admin', 'customer'])],
             'admin_code' => ['nullable', 'required_if:role,admin', 'string'],
         ]);
