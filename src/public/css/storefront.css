@@ -677,6 +677,28 @@
   overflow-y: hidden;
 }
 
+.compare-toolbar{
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.9rem;
+}
+
+.compare-differences-toggle{
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--tx-border);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.03);
+  color: var(--tx-text);
+  font-size: 0.95rem;
+}
+
+.compare-differences-toggle input{
+  accent-color: var(--tx-accent);
+}
+
 .compare-field-row{
   display: grid;
   grid-template-columns: 160px 1fr;
@@ -685,6 +707,22 @@
 
 .compare-field-row:first-child{
   border-top: 0;
+}
+
+.compare-field-row-is-different .compare-field-label{
+  background: rgba(227, 30, 36, 0.1);
+}
+
+.compare-field-row-is-different .compare-field-value{
+  background: rgba(227, 30, 36, 0.04);
+}
+
+.compare-field-row-tone-positive.compare-field-row-is-different .compare-field-label{
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.compare-field-row-tone-positive.compare-field-row-is-different .compare-field-value{
+  background: rgba(34, 197, 94, 0.05);
 }
 
 .compare-field-label{
@@ -703,6 +741,7 @@
   border-left: 1px solid var(--tx-border);
   word-break: break-word;
   line-height: 1.45;
+  min-height: 100%;
 }
 
 .compare-field-value:first-child{
@@ -725,6 +764,30 @@
 .compare-product-link{
   display: inline-block;
   width: fit-content;
+}
+
+.compare-field-value-rich{
+  white-space: pre-line;
+}
+
+.compare-field-value-description{
+  line-height: 1.6;
+}
+
+.compare-field-value-status{
+  font-weight: 600;
+}
+
+.compare-field-value-status-in-stock{
+  color: #4ade80 !important;
+}
+
+.compare-field-value-status-low-stock{
+  color: #fbbf24 !important;
+}
+
+.compare-field-value-status-out-of-stock{
+  color: #f87171 !important;
 }
 
 .cart-line-shell,
