@@ -229,12 +229,20 @@ async function loadCompareProductDetails(storedItem) {
     url: storedItem.url || `/products/${encodeURIComponent(storedItem.slug || String(storedItem.id))}`,
     image: storedItem.image || '',
     images: fallbackImages,
+    priceValue: storedItem.price,
     priceText: storedItem.price === null ? 'N/A' : formatMoney(storedItem.price),
+    priceDifferenceText: 'N/A',
     brand: 'N/A',
     category: 'N/A',
     sku: 'N/A',
+    availability: 'N/A',
+    reviewSummary: 'No reviews',
+    stock: 'N/A',
+    lowStockThreshold: 'N/A',
+    optionTypes: 'N/A',
     variants: 'No',
     summary: storedItem.summary || 'No summary available.',
+    description: 'No description available.',
   };
 
   try {
@@ -247,6 +255,23 @@ async function loadCompareProductDetails(storedItem) {
     const images = Array.isArray(product.images)
       ? product.images.map(entry => entry?.url).filter(Boolean)
       : [];
+    const optionTypes = Array.isArray(product.option_types)
+      ? product.option_types
+          .map(optionType => {
+            const typeName = optionType?.name;
+            const values = Array.isArray(optionType?.values)
+              ? optionType.values.map(value => value?.value).filter(Boolean)
+              : [];
+
+            if (!typeName) return null;
+
+            return values.length > 0
+              ? `${typeName}: ${values.join(', ')}`
+              : typeName;
+          })
+          .filter(Boolean)
+          .join('\n')
+      : '';
 
     return {
       id: storedItem.id,
@@ -254,16 +279,119 @@ async function loadCompareProductDetails(storedItem) {
       url: storedItem.url || (product.slug ? `/products/${product.slug}` : fallback.url),
       image: (Array.isArray(product.images) && product.images[0]?.url) ? product.images[0].url : fallback.image,
       images: images.length > 0 ? images : fallbackImages,
+      priceValue: Number.isFinite(effectivePrice) ? effectivePrice : storedItem.price,
       priceText: Number.isFinite(effectivePrice) ? formatMoney(effectivePrice) : fallback.priceText,
       brand: product.brand?.name || 'N/A',
       category: product.category?.name || 'N/A',
       sku: product.sku || 'N/A',
+      availability: buildAvailabilityLabel(product),
+      reviewSummary: buildReviewSummary(product),
+      stock: Number.isFinite(Number(product.stock_quantity)) ? String(product.stock_quantity) : 'N/A',
+      lowStockThreshold: Number.isFinite(Number(product.low_stock_threshold)) ? String(product.low_stock_threshold) : 'N/A',
+      optionTypes: optionTypes || 'None',
       variants: product.has_variants ? `Yes (${variantCount})` : 'No',
       summary: product.summary || fallback.summary,
+      description: product.description || fallback.description,
     };
   } catch (_error) {
     return fallback;
   }
+}
+
+function buildAvailabilityLabel(product) {
+  const lowStockThreshold = Number(product?.low_stock_threshold);
+
+  if (product?.has_variants) {
+    const totalStock = Array.isArray(product?.variants)
+      ? product.variants.reduce((sum, variant) => sum + Math.max(0, Number(variant?.stock_quantity) || 0), 0)
+      : 0;
+
+    if (totalStock <= 0) return 'Out of stock';
+    if (Number.isFinite(lowStockThreshold) && totalStock <= lowStockThreshold) {
+      return `Low stock (${totalStock} units)`;
+    }
+
+    return `In stock (${totalStock} units)`;
+  }
+
+  const stock = Number(product?.stock_quantity);
+  if (!Number.isFinite(stock)) return 'N/A';
+  if (stock <= 0) return 'Out of stock';
+  if (Number.isFinite(lowStockThreshold) && stock <= lowStockThreshold) {
+    return `Low stock (${stock} units)`;
+  }
+
+  return `In stock (${stock} units)`;
+}
+
+function buildReviewSummary(product) {
+  const reviewCount = Number(product?.reviews_count);
+  const reviewAverage = Number(product?.reviews_avg_rating);
+
+  if (!Number.isFinite(reviewCount) || reviewCount <= 0) {
+    return 'No reviews';
+  }
+
+  if (!Number.isFinite(reviewAverage)) {
+    return `${reviewCount} review${reviewCount === 1 ? '' : 's'}`;
+  }
+
+  return `${reviewAverage.toFixed(1)} / 5 (${reviewCount} review${reviewCount === 1 ? '' : 's'})`;
+}
+
+function buildPriceDifferenceText(items, index) {
+  const currentPrice = Number(items[index]?.priceValue);
+  const otherPrice = Number(items[index === 0 ? 1 : 0]?.priceValue);
+
+  if (!Number.isFinite(currentPrice) || !Number.isFinite(otherPrice)) {
+    return 'N/A';
+  }
+
+  const difference = Math.abs(currentPrice - otherPrice);
+  if (difference < 0.005) {
+    return 'Same price';
+  }
+
+  return currentPrice < otherPrice
+    ? `${formatMoney(difference)} cheaper`
+    : `${formatMoney(difference)} more expensive`;
+}
+
+function valuesDiffer(values) {
+  const normalized = values.map(value => String(value ?? '').trim().toLowerCase());
+  return normalized.some(value => value !== normalized[0]);
+}
+
+function availabilityValueClass(value) {
+  const normalized = String(value ?? '').trim().toLowerCase();
+
+  if (normalized.startsWith('in stock')) {
+    return 'compare-field-value-status compare-field-value-status-in-stock';
+  }
+
+  if (normalized.startsWith('low stock')) {
+    return 'compare-field-value-status compare-field-value-status-low-stock';
+  }
+
+  if (normalized.startsWith('out of stock')) {
+    return 'compare-field-value-status compare-field-value-status-out-of-stock';
+  }
+
+  return '';
+}
+
+function priceDifferenceValueClass(value) {
+  const normalized = String(value ?? '').trim().toLowerCase();
+
+  if (normalized.includes('cheaper')) {
+    return 'compare-field-value-status compare-field-value-status-in-stock';
+  }
+
+  if (normalized.includes('more expensive')) {
+    return 'compare-field-value-status compare-field-value-status-out-of-stock';
+  }
+
+  return '';
 }
 
 function initCompareImageCarousels(rootElement) {
@@ -368,7 +496,16 @@ function createCompareUi() {
       error.classList.toggle('d-none', !isError);
       content.classList.toggle('d-none', !isReady);
     },
-        renderCompareTable(items) {
+    renderCompareTable(items) {
+      const renderFieldValue = (value, rowClass = '', valueClass = '') => `
+        <div class="compare-field-value ${rowClass} ${valueClass}">${escapeHtml(value ?? 'N/A')}</div>
+      `;
+
+      const enrichedItems = items.map((item, index) => ({
+        ...item,
+        priceDifferenceText: buildPriceDifferenceText(items, index),
+      }));
+
       const renderProductCell = (item) => {
         const images = Array.isArray(item.images) ? item.images : [];
         const imageBlock = images.length > 0
@@ -402,32 +539,50 @@ function createCompareUi() {
       };
 
       const rows = [
-        { label: 'Brand', values: items.map(item => item.brand) },
-        { label: 'Category', values: items.map(item => item.category) },
-        { label: 'SKU', values: items.map(item => item.sku) },
-        { label: 'Variants', values: items.map(item => item.variants) },
-        { label: 'Summary', values: items.map(item => item.summary) },
+        {
+          label: 'Price difference',
+          values: enrichedItems.map(item => item.priceDifferenceText),
+          valueClasses: enrichedItems.map(item => priceDifferenceValueClass(item.priceDifferenceText)),
+        },
+        { label: 'Review rating', values: enrichedItems.map(item => item.reviewSummary) },
+        {
+          label: 'Availability',
+          values: enrichedItems.map(item => item.availability),
+          valueClasses: enrichedItems.map(item => availabilityValueClass(item.availability)),
+        },
+        { label: 'Brand', values: enrichedItems.map(item => item.brand) },
+        { label: 'Category', values: enrichedItems.map(item => item.category) },
+        { label: 'Stock quantity', values: enrichedItems.map(item => item.stock) },
+        { label: 'Variants', values: enrichedItems.map(item => item.variants) },
+        { label: 'Options', values: enrichedItems.map(item => item.optionTypes), rowClass: 'compare-field-value-rich' },
+        { label: 'Summary', values: enrichedItems.map(item => item.summary), rowClass: 'compare-field-value-rich', tone: 'positive' },
+        { label: 'Description', values: enrichedItems.map(item => item.description), rowClass: 'compare-field-value-rich compare-field-value-description', tone: 'positive' },
       ];
 
       const rowsHtml = rows
-        .map(row => `
-          <div class="compare-field-row">
+        .map(row => {
+          const isDifferent = valuesDiffer(row.values);
+          const toneClass = row.tone ? ` compare-field-row-tone-${row.tone}` : '';
+
+          return `
+          <div class="compare-field-row ${isDifferent ? 'compare-field-row-is-different' : ''}${toneClass}" data-compare-row data-is-different="${isDifferent ? '1' : '0'}">
             <div class="compare-field-label">${escapeHtml(row.label)}</div>
             <div class="compare-field-values">
-              <div class="compare-field-value">${escapeHtml(row.values[0] ?? 'N/A')}</div>
-              <div class="compare-field-value">${escapeHtml(row.values[1] ?? 'N/A')}</div>
+              ${renderFieldValue(row.values[0], row.rowClass, row.valueClasses?.[0] ?? '')}
+              ${renderFieldValue(row.values[1], row.rowClass, row.valueClasses?.[1] ?? '')}
             </div>
           </div>
-        `)
+        `;
+        })
         .join('');
 
-      const firstItem = items[0] ?? {
+      const firstItem = enrichedItems[0] ?? {
         name: 'Product A',
         priceText: 'N/A',
         url: '#',
         images: [],
       };
-      const secondItem = items[1] ?? {
+      const secondItem = enrichedItems[1] ?? {
         name: 'Product B',
         priceText: 'N/A',
         url: '#',
@@ -435,6 +590,12 @@ function createCompareUi() {
       };
 
       content.innerHTML = `
+        <div class="compare-toolbar">
+          <label class="compare-differences-toggle">
+            <input type="checkbox" data-compare-differences-toggle>
+            <span>Only show differences</span>
+          </label>
+        </div>
         <div class="compare-fields">
           <div class="compare-field-row compare-product-row">
             <div class="compare-field-label">Product</div>
@@ -450,6 +611,20 @@ function createCompareUi() {
           ${rowsHtml}
         </div>
       `;
+
+      const differencesToggle = content.querySelector('[data-compare-differences-toggle]');
+      const compareRows = [...content.querySelectorAll('[data-compare-row]')];
+      const updateRowVisibility = () => {
+        const showOnlyDifferences = Boolean(differencesToggle?.checked);
+
+        compareRows.forEach(row => {
+          const isDifferent = row.dataset.isDifferent === '1';
+          row.classList.toggle('d-none', showOnlyDifferences && !isDifferent);
+        });
+      };
+
+      differencesToggle?.addEventListener('change', updateRowVisibility);
+      updateRowVisibility();
 
       initCompareImageCarousels(content);
     },

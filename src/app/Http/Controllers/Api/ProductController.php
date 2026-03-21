@@ -98,7 +98,9 @@ class ProductController extends ApiController
 
     public function show(Product $product)
     {
-        $product->load(['category', 'brand', 'images', 'variants', 'optionTypes.values']);
+        $product->load(['category', 'brand', 'images', 'variants', 'optionTypes.values'])
+            ->loadCount('reviews')
+            ->loadAvg('reviews', 'rating');
 
         return response()->json([
             'product' => $product,
