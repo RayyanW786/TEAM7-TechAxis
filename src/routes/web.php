@@ -8,6 +8,7 @@ use App\Http\Controllers\Storefront\CheckoutPageController;
 use App\Http\Controllers\Storefront\OrderPageController;
 use App\Http\Controllers\Storefront\SupportTicketPageController;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
 
 
 // Home page
@@ -31,6 +32,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/orders', function () {
         return view('admin.orders');
     })->name('admin.orders');
+    Route::get('/admin/products', function () {
+        return view('admin.products.index');
+    })->name('admin.products.index');
+    Route::get('/admin/products/create', function () {
+        return view('admin.products.create');
+    })->name('admin.products.create');
+    Route::get('/admin/products/{product}', function (Product $product) {
+        return view('admin.products.edit', compact('product'));
+    });
 });
 
 // About page
@@ -48,6 +58,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/tickets/{ticket}/messages', [SupportTicketPageController::class, 'storeMessage'])->name('tickets.messages.store');
         Route::get('/tickets/{ticket}/messages', [SupportTicketPageController::class, 'messages'])->name('tickets.messages.index');
     });
+
+    Route::get('/change-password', function () {
+        return view('change_password');
+    })->name('password.change');
+
+    Route::post('/change-password', [UsersController::class, 'changePassword'])
+        ->name('password.update');
 });
 
 Route::view('/orders', 'admin.orders')->middleware('auth')->name('orders');

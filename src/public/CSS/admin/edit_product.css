@@ -1,0 +1,73 @@
+.edit-product-container {
+    max-width: 700px;
+    margin: 40px auto;
+    color: var(--tech-light);
+}
+
+.edit-product-form {
+    background: var(--tech-dark);
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid var(--tech-gray);
+}
+
+.edit-product-container h1 {
+    margin-bottom: 20px;
+    color: var(--tech-light);
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--tech-light);
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--tech-gray);
+    background: var(--tech-black);
+    color: var(--tech-light);
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--tech-red);
+    box-shadow: 0 0 0 1px var(--tech-red);
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.actions button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--tech-red);
+    color: var(--tech-light);
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.actions button:hover {
+    background: #cc0000;
+}
+
+.actions .danger {
+    background: var(--tech-gray);
+}
+
+.actions .danger:hover {
+    background: #555;
+}
