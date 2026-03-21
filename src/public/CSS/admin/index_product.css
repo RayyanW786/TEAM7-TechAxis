@@ -1,0 +1,58 @@
+body {
+    background: var(--tech-dark);
+    color: var(--tech-light);
+    font-family: 'Roboto', sans-serif;
+}
+.dashboard-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+.add-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 16px;
+    background: var(--tech-red);
+    color: var(--tech-light);
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.add-btn:hover {
+    background: #cc0000;
+}
+
+#product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+#product-list .admin-panel {
+    background: var(--tech-dark);
+    border: 1px solid var(--tech-gray);
+    border-radius: 12px;
+    padding: 16px;
+    text-decoration: none;
+    color: var(--tech-light);
+    transition: all 0.2s ease;
+    display: block;
+}
+
+#product-list .admin-panel:hover {
+    border-color: var(--tech-red);
+    transform: translateY(-3px);
+}
+
+#product-list strong {
+    font-size: 16px;
+    display: block;
+    margin-bottom: 6px;
+}
+
+#product-list span {
+    color: #bbb;
+    font-size: 14px;
+}

@@ -48,6 +48,7 @@ class OrderController extends ApiController
             'status' => $data['status'],
         ]);
 
-        return response()->json($order->fresh());
+    
+        return back()->with('success', 'Order status updated successfully.');
     }
 }

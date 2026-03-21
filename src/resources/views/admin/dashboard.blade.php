@@ -1,7 +1,7 @@
 @extends('layouts.main')
 @section('title', 'Admin Dashboard - Tech Axis')
 @push('styles')
-     <link href="{{ asset('css/admin/dashboard.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/admin/dashboard.css') }}" rel="stylesheet">
 @endpush
 @section('content')
     <div class="dashboard-container">
@@ -11,18 +11,23 @@
             <a href="{{ route('admin.orders') }}" class="admin-panel">
                 <strong>📦 Orders</strong>
                 <br>
-                Manage customer orders   
+                Manage customer orders
             </a>
-            <a href="{{ route('under-construction') }}" class="admin-panel">
+            <a href="{{ route('admin.products.index') }}" class="admin-panel">
                 <strong>🛒 Products</strong>
                 <br>
                 Manage product listings and stock
             </a>
             <a href="{{ route('under-construction') }}" class="admin-panel">
-                <strong>🔐 Change Password</strong>
+                <strong>👥 Support Tickets</strong>
+                <br>
+                Manage and resolve customer support tickets
+            </a>
+            <a href="{{ route('password.change') }}" class="admin-panel">
+                🔐 Change Password
             </a>
             <a href="{{ route('home') }}" class="admin-panel"
-            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                 <strong>🚪 Log-out</strong>
             </a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

@@ -16,7 +16,12 @@ class OrderPageController extends Controller
             404
         );
 
-        $order->load(['items.product', 'items.variant']);
+        $order->load([
+            'items.product',
+            'items.variant',
+            'billingAddress',
+            'shippingAddress',
+        ]);
 
         return view('storefront.orders.show', [
             'order' => $order,
