@@ -54,7 +54,11 @@ VALUES
   ('Logitech','logitech','Swiss manufacturer of computer peripherals'),
   ('Razer','razer','Global gaming hardware and software company'),
   ('SteelSeries','steelseries','Danish manufacturer of gaming peripherals'),
-  ('Tech Axis','tech-axis','Your own gaming merchandise brand')
+  ('Tech Axis','tech-axis','Your own gaming merchandise brand'),
+  ('Nintendo','nintendo','Japanese gaming company behind Switch and Mario'),
+  ('Samsung','samsung','South Korean electronics manufacturer'),
+  ('Apple','apple','American technology company known for iPhone and Mac'),
+  ('Anker','anker','Electronics brand specializing in charging technology')
 ON CONFLICT (slug) DO UPDATE
 SET name = EXCLUDED.name,
     description = EXCLUDED.description;
@@ -88,7 +92,7 @@ ON CONFLICT (name) DO NOTHING;
 INSERT INTO option_values (option_type_id, value)
 SELECT ot.id, v.value
 FROM option_types ot
-CROSS JOIN (VALUES ('Black'),('White'),('Grey'),('Red')) AS v(value)
+CROSS JOIN (VALUES ('Black'),('White'),('Grey'),('Red'),('Blue')) AS v(value)
 WHERE ot.name = 'Colour'
 ON CONFLICT (option_type_id, value) DO NOTHING;
 
@@ -106,7 +110,7 @@ ON CONFLICT (option_type_id, value) DO NOTHING;
 INSERT INTO option_values (option_type_id, value)
 SELECT ot.id, v.value
 FROM option_types ot
-CROSS JOIN (VALUES ('256GB'),('512GB'),('1TB')) AS v(value)
+CROSS JOIN (VALUES ('256GB'),('512GB'),('1TB'),('2TB')) AS v(value)
 WHERE ot.name = 'Storage'
 ON CONFLICT (option_type_id, value) DO NOTHING;
 
@@ -197,18 +201,18 @@ INSERT INTO products (
   summary, description, price, stock_quantity, has_variants, low_stock_threshold
 )
 VALUES (
-  (SELECT id FROM categories WHERE slug='controllers'),
+  (SELECT id FROM categories WHERE slug='consoles-accessories'),
   (SELECT id FROM brands WHERE slug='sony'),
   'DualSense Wireless Controller',
   'dualsense-wireless-controller',
-  'SONY-DS-001',
+  NULL,
   'active',
-  'PS5 controller with haptic feedback and adaptive triggers',
-  'Comfortable controller featuring immersive haptic feedback, adaptive triggers, a built-in microphone, and USB-C charging.',
-  69.99,
-  120,
-  FALSE,
-  10
+  'Immersive PS5 controller with haptic feedback',
+  'Experience adaptive triggers and haptic feedback with DualSense wireless controller.',
+  0.00,
+  0,
+  TRUE,
+  5
 )
 ON CONFLICT (slug) DO UPDATE SET
   category_id = EXCLUDED.category_id,
@@ -223,10 +227,66 @@ ON CONFLICT (slug) DO UPDATE SET
   has_variants = EXCLUDED.has_variants,
   low_stock_threshold = EXCLUDED.low_stock_threshold;
 
+-- Product option types for DualSense
+INSERT INTO product_option_types (product_id, option_type_id)
+SELECT p.id, ot.id
+FROM products p
+JOIN option_types ot ON ot.name IN ('Colour')
+WHERE p.slug='dualsense-wireless-controller'
+ON CONFLICT DO NOTHING;
+
+-- Variants for DualSense
+INSERT INTO product_variants (product_id, sku, title, price, stock_quantity, low_stock_threshold)
+VALUES
+  ((SELECT id FROM products WHERE slug='dualsense-wireless-controller'), 'DUALSENSE-WHITE', 'DualSense Wireless Controller - White', 69.99, 35, 5),
+  ((SELECT id FROM products WHERE slug='dualsense-wireless-controller'), 'DUALSENSE-BLACK', 'DualSense Wireless Controller - Black', 69.99, 30, 5),
+  ((SELECT id FROM products WHERE slug='dualsense-wireless-controller'), 'DUALSENSE-RED',   'DualSense Wireless Controller - Red',   74.99, 18, 5),
+  ((SELECT id FROM products WHERE slug='dualsense-wireless-controller'), 'DUALSENSE-BLUE',  'DualSense Wireless Controller - Blue',  74.99, 16, 5)
+ON CONFLICT (sku) DO UPDATE SET
+  product_id = EXCLUDED.product_id,
+  title = EXCLUDED.title,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+-- Variant option values for DualSense
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Colour'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='White'
+WHERE v.sku='DUALSENSE-WHITE'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Colour'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Black'
+WHERE v.sku='DUALSENSE-BLACK'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Colour'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Red'
+WHERE v.sku='DUALSENSE-RED'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Colour'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Blue'
+WHERE v.sku='DUALSENSE-BLUE'
+ON CONFLICT DO NOTHING;
+
 -- Images for DualSense
-SELECT fn_upsert_product_image('dualsense-wireless-controller', 0, 'https://media.currys.biz/i/currysprod/M10211929_white?$l-large$&fmt=auto', 'DualSense Wireless Controller - white front');
-SELECT fn_upsert_product_image('dualsense-wireless-controller', 1, 'https://media.currys.biz/i/currysprod/M10211929_white_002?$l-large$&fmt=auto', 'DualSense Wireless Controller - white angled view');
-SELECT fn_upsert_product_image('dualsense-wireless-controller', 2, 'https://media.currys.biz/i/currysprod/M10211929_white_003?$l-large$&fmt=auto', 'DualSense Wireless Controller - white back');
+SELECT fn_upsert_product_image('dualsense-wireless-controller', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/dualsense-white.jpg', 'DualSense Wireless Controller - white');
+SELECT fn_upsert_product_image('dualsense-wireless-controller', 1, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/dualsense-black.jpg', 'DualSense Wireless Controller - black');
+SELECT fn_upsert_product_image('dualsense-wireless-controller', 2, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/dualsense-red.jpg', 'DualSense Wireless Controller - red');
+SELECT fn_upsert_product_image('dualsense-wireless-controller', 3, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/dualsense-blue.jpg', 'DualSense Wireless Controller - blue');
 
 
 
@@ -267,7 +327,7 @@ ON CONFLICT (slug) DO UPDATE SET
 INSERT INTO product_option_types (product_id, option_type_id)
 SELECT p.id, ot.id
 FROM products p
-JOIN option_types ot ON ot.name IN ('Color')
+JOIN option_types ot ON ot.name IN ('Colour')
 WHERE p.slug='xbox-series-x'
 ON CONFLICT DO NOTHING;
 
@@ -291,7 +351,7 @@ ON CONFLICT (sku) DO UPDATE SET
 INSERT INTO product_variant_option_values (variant_id, option_value_id)
 SELECT v.id, ov.id
 FROM product_variants v
-JOIN option_types ot ON ot.name='Color'
+JOIN option_types ot ON ot.name='Colour'
 JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Black'
 WHERE v.sku='XBOX-BLACK'
 ON CONFLICT DO NOTHING;
@@ -300,7 +360,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO product_variant_option_values (variant_id, option_value_id)
 SELECT v.id, ov.id
 FROM product_variants v
-JOIN option_types ot ON ot.name='Color'
+JOIN option_types ot ON ot.name='Colour'
 JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='White'
 WHERE v.sku='XBOX-WHITE'
 ON CONFLICT DO NOTHING;
@@ -309,7 +369,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO product_variant_option_values (variant_id, option_value_id)
 SELECT v.id, ov.id
 FROM product_variants v
-JOIN option_types ot ON ot.name='Color'
+JOIN option_types ot ON ot.name='Colour'
 JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Red'
 WHERE v.sku='XBOX-RED'
 ON CONFLICT DO NOTHING;
@@ -394,7 +454,7 @@ ON CONFLICT (slug) DO UPDATE SET
 INSERT INTO product_option_types (product_id, option_type_id)
 SELECT p.id, ot.id
 FROM products p
-JOIN option_types ot ON ot.name IN ('Color')
+JOIN option_types ot ON ot.name IN ('Colour')
 WHERE p.slug='corsair-k100-rgb-mechanical-keyboard'
 ON CONFLICT DO NOTHING;
 
@@ -414,7 +474,7 @@ ON CONFLICT (sku) DO UPDATE SET
 INSERT INTO product_variant_option_values (variant_id, option_value_id)
 SELECT v.id, ov.id
 FROM product_variants v
-JOIN option_types ot ON ot.name='Color'
+JOIN option_types ot ON ot.name='Colour'
 JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Black'
 WHERE v.sku='K100-BLACK'
 ON CONFLICT DO NOTHING;
@@ -422,7 +482,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO product_variant_option_values (variant_id, option_value_id)
 SELECT v.id, ov.id
 FROM product_variants v
-JOIN option_types ot ON ot.name='Color'
+JOIN option_types ot ON ot.name='Colour'
 JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='White'
 WHERE v.sku='K100-WHITE'
 ON CONFLICT DO NOTHING;
@@ -548,7 +608,7 @@ ON CONFLICT (slug) DO UPDATE SET
 INSERT INTO product_option_types (product_id, option_type_id)
 SELECT p.id, ot.id
 FROM products p
-JOIN option_types ot ON ot.name IN ('Color','Size')
+JOIN option_types ot ON ot.name IN ('Colour','Size')
 WHERE p.slug='tech-axis-gaming-hoodie'
 ON CONFLICT DO NOTHING;
 
@@ -575,7 +635,7 @@ ON CONFLICT (sku) DO UPDATE SET
 INSERT INTO product_variant_option_values (variant_id, option_value_id)
 SELECT v.id, ov.id
 FROM product_variants v
-JOIN option_types ot ON ot.name='Color'
+JOIN option_types ot ON ot.name='Colour'
 JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Black'
 WHERE v.sku IN ('HOODIE-BLACK-S','HOODIE-BLACK-M','HOODIE-BLACK-L','HOODIE-BLACK-XL')
 ON CONFLICT DO NOTHING;
@@ -597,7 +657,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO product_variant_option_values (variant_id, option_value_id)
 SELECT v.id, ov.id
 FROM product_variants v
-JOIN option_types ot ON ot.name='Color'
+JOIN option_types ot ON ot.name='Colour'
 JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Grey'
 WHERE v.sku IN ('HOODIE-GREY-S','HOODIE-GREY-M','HOODIE-GREY-L','HOODIE-GREY-XL')
 ON CONFLICT DO NOTHING;
@@ -657,6 +717,551 @@ ON CONFLICT (slug) DO UPDATE SET
 SELECT fn_upsert_product_image('asus-rog-strix-geforce-rtx-4080', 0, 'https://m.media-amazon.com/images/I/71uLe6XTV4L._AC_SL1500_.jpg', 'ASUS ROG Strix RTX 4080 - main');
 SELECT fn_upsert_product_image('asus-rog-strix-geforce-rtx-4080', 1, 'https://m.media-amazon.com/images/I/71T3YjCKVtL._AC_SL1500_.jpg', 'ASUS ROG Strix RTX 4080 - angled');
 SELECT fn_upsert_product_image('asus-rog-strix-geforce-rtx-4080', 2, 'https://m.media-amazon.com/images/I/71BL-d-zosL._AC_SL1500_.jpg', 'ASUS ROG Strix RTX 4080 - flat');
+
+
+-- Nintendo Switch OLED
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='consoles-accessories'),
+  (SELECT id FROM brands WHERE slug='nintendo'),
+  'Nintendo Switch OLED',
+  'nintendo-switch-oled',
+  'NSW-OLED-001',
+  'active',
+  'Hybrid console with vibrant 7-inch OLED screen',
+  'Nintendo Switch OLED model features a vivid 7-inch OLED display, enhanced audio, and 64GB internal storage. Play at home or on the go with detachable Joy-Con controllers.',
+  309.99,
+  40,
+  FALSE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+SELECT fn_upsert_product_image('nintendo-switch-oled', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/nintendo-switch-oled.jpg', 'Nintendo Switch OLED - white');
+
+
+-- Razer BlackWidow V4 Mechanical Keyboard
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='pc-gaming'),
+  (SELECT id FROM brands WHERE slug='razer'),
+  'Razer BlackWidow V4 Mechanical Keyboard',
+  'razer-blackwidow-v4-keyboard',
+  'RAZER-KB-001',
+  'active',
+  'RGB mechanical keyboard with tactile switches',
+  'Razer BlackWidow V4 mechanical keyboard with customizable RGB lighting, programmable macros, and durable tactile switches.',
+  139.99,
+  35,
+  FALSE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+SELECT fn_upsert_product_image('razer-blackwidow-v4-keyboard', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/razer-blackwidow-v4-keyboard.jpg', 'Razer BlackWidow V4 Mechanical Keyboard');
+
+
+-- SteelSeries Apex Pro TKL Keyboard
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='pc-gaming'),
+  (SELECT id FROM brands WHERE slug='steelseries'),
+  'SteelSeries Apex Pro TKL Keyboard',
+  'steelseries-apex-pro-tkl',
+  'SS-APEXPRO-001',
+  'active',
+  'Adjustable actuation gaming keyboard',
+  'Compact tenkeyless gaming keyboard with adjustable actuation switches and per-key RGB illumination.',
+  169.99,
+  28,
+  FALSE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+SELECT fn_upsert_product_image('steelseries-apex-pro-tkl', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/steelseries-apex-pro-tkl.jpg', 'SteelSeries Apex Pro TKL Keyboard');
+
+
+-- Logitech G Pro X Superlight Mouse
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='pc-gaming'),
+  (SELECT id FROM brands WHERE slug='logitech'),
+  'Logitech G Pro X Superlight Mouse',
+  'logitech-g-pro-x-superlight',
+  'LOGI-SUPERLIGHT-001',
+  'active',
+  'Ultra-lightweight esports gaming mouse',
+  'Weighing under 63g, this wireless esports mouse offers HERO sensor precision and ultra-low latency performance.',
+  129.99,
+  45,
+  FALSE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+SELECT fn_upsert_product_image('logitech-g-pro-x-superlight', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/logitech-g-pro-x-superlight.jpg', 'Logitech G Pro X Superlight Mouse');
+
+
+-- Corsair Vengeance RGB DDR5 32GB RAM
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='pc-components'),
+  (SELECT id FROM brands WHERE slug='corsair'),
+  'Corsair Vengeance RGB DDR5 32GB RAM',
+  'corsair-vengeance-rgb-ddr5-32gb',
+  'COR-DDR5-32GB',
+  'active',
+  'High-speed DDR5 memory with RGB',
+  '32GB (2x16GB) Corsair Vengeance DDR5 RAM delivering blazing speeds and dynamic RGB lighting for high-performance builds.',
+  179.99,
+  30,
+  FALSE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+SELECT fn_upsert_product_image('corsair-vengeance-rgb-ddr5-32gb', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/Vengeance-RGB-DDR5-2UP-BLACK_01.avif', 'Corsair Vengeance RGB DDR5 32GB RAM');
+
+
+-- Anker PowerCore 20K Power Bank
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='phones-gadgets'),
+  (SELECT id FROM brands WHERE slug='anker'),
+  'Anker PowerCore 20K Power Bank',
+  'anker-powercore-20k',
+  'ANKER-20K-001',
+  'active',
+  'High-capacity fast-charging power bank',
+  '20,000mAh portable charger with PowerIQ technology for fast and safe charging of phones and tablets.',
+  39.99,
+  75,
+  FALSE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+SELECT fn_upsert_product_image('anker-powercore-20k', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/anker-powercore-20k.jpg', 'Anker PowerCore 20K Power Bank');
+
+
+-- Apple AirPods Pro (2nd Gen)
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='phones-gadgets'),
+  (SELECT id FROM brands WHERE slug='apple'),
+  'Apple AirPods Pro (2nd Gen)',
+  'apple-airpods-pro-2',
+  'APPLE-AIRPODS-2',
+  'active',
+  'Active noise-cancelling wireless earbuds',
+  'Apple AirPods Pro with improved ANC, spatial audio, and MagSafe charging case.',
+  229.99,
+  50,
+  FALSE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+SELECT fn_upsert_product_image('apple-airpods-pro-2', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/apple-airpods-pro-2.jpg', 'Apple AirPods Pro 2');
+
+
+-- Xbox Wireless Controller
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='consoles-accessories'),
+  (SELECT id FROM brands WHERE slug='microsoft'),
+  'Xbox Wireless Controller',
+  'xbox-wireless-controller',
+  NULL,
+  'active',
+  'Textured grip controller for Xbox and PC',
+  'Microsoft Xbox Wireless Controller with textured grip, Bluetooth support, and share button.',
+  0.00,
+  0,
+  TRUE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+INSERT INTO product_option_types (product_id, option_type_id)
+SELECT p.id, ot.id
+FROM products p
+JOIN option_types ot ON ot.name IN ('Colour')
+WHERE p.slug='xbox-wireless-controller'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variants (product_id, sku, title, price, stock_quantity, low_stock_threshold)
+VALUES
+  ((SELECT id FROM products WHERE slug='xbox-wireless-controller'), 'XBOX-CONTROLLER-WHITE', 'Xbox Wireless Controller - White', 59.99, 24, 5),
+  ((SELECT id FROM products WHERE slug='xbox-wireless-controller'), 'XBOX-CONTROLLER-BLUE',  'Xbox Wireless Controller - Blue',  64.99, 18, 5)
+ON CONFLICT (sku) DO UPDATE SET
+  product_id = EXCLUDED.product_id,
+  title = EXCLUDED.title,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Colour'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='White'
+WHERE v.sku='XBOX-CONTROLLER-WHITE'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Colour'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Blue'
+WHERE v.sku='XBOX-CONTROLLER-BLUE'
+ON CONFLICT DO NOTHING;
+
+SELECT fn_upsert_product_image('xbox-wireless-controller', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/xbox-controller-white.jpg', 'Xbox Wireless Controller - white');
+SELECT fn_upsert_product_image('xbox-wireless-controller', 1, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/xbox-controller-blue.jpg', 'Xbox Wireless Controller - blue');
+
+
+-- Samsung 980 PRO 1TB NVMe SSD
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='pc-components'),
+  (SELECT id FROM brands WHERE slug='samsung'),
+  'Samsung 980 PRO 1TB NVMe SSD',
+  'samsung-980-pro-1tb',
+  NULL,
+  'active',
+  'Ultra-fast PCIe Gen4 SSD',
+  'Samsung 980 PRO NVMe SSD with PCIe 4.0 interface, delivering up to 7,000 MB/s read speeds for extreme performance.',
+  0.00,
+  0,
+  TRUE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+INSERT INTO product_option_types (product_id, option_type_id)
+SELECT p.id, ot.id
+FROM products p
+JOIN option_types ot ON ot.name IN ('Storage')
+WHERE p.slug='samsung-980-pro-1tb'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variants (product_id, sku, title, price, stock_quantity, low_stock_threshold)
+VALUES
+  ((SELECT id FROM products WHERE slug='samsung-980-pro-1tb'), 'SAMSUNG-980PRO-512', 'Samsung 980 PRO - 512GB', 79.99, 20, 5),
+  ((SELECT id FROM products WHERE slug='samsung-980-pro-1tb'), 'SAMSUNG-980PRO-1TB', 'Samsung 980 PRO - 1TB', 129.99, 18, 5),
+  ((SELECT id FROM products WHERE slug='samsung-980-pro-1tb'), 'SAMSUNG-980PRO-2TB', 'Samsung 980 PRO - 2TB', 219.99, 10, 3)
+ON CONFLICT (sku) DO UPDATE SET
+  product_id = EXCLUDED.product_id,
+  title = EXCLUDED.title,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Storage'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='512GB'
+WHERE v.sku='SAMSUNG-980PRO-512'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Storage'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='1TB'
+WHERE v.sku='SAMSUNG-980PRO-1TB'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Storage'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='2TB'
+WHERE v.sku='SAMSUNG-980PRO-2TB'
+ON CONFLICT DO NOTHING;
+
+SELECT fn_upsert_product_image('samsung-980-pro-1tb', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/samsung-980-pro-512gb.jpg', 'Samsung 980 PRO - 512GB');
+SELECT fn_upsert_product_image('samsung-980-pro-1tb', 1, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/samsung-980-pro-1tb.jpg', 'Samsung 980 PRO - 1TB');
+SELECT fn_upsert_product_image('samsung-980-pro-1tb', 2, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/samsung-980-pro-2tb.jpg', 'Samsung 980 PRO - 2TB');
+
+
+-- Samsung Galaxy Tab S9
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='phones-gadgets'),
+  (SELECT id FROM brands WHERE slug='samsung'),
+  'Galaxy Tab S9',
+  'samsung-galaxy-tab-s9',
+  NULL,
+  'active',
+  'Premium Android tablet with AMOLED display',
+  'Galaxy Tab S9 with 11-inch Dynamic AMOLED 2X display, S Pen included, and powerful Snapdragon processor.',
+  0.00,
+  0,
+  TRUE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+INSERT INTO product_option_types (product_id, option_type_id)
+SELECT p.id, ot.id
+FROM products p
+JOIN option_types ot ON ot.name IN ('Storage')
+WHERE p.slug='samsung-galaxy-tab-s9'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variants (product_id, sku, title, price, stock_quantity, low_stock_threshold)
+VALUES
+  ((SELECT id FROM products WHERE slug='samsung-galaxy-tab-s9'), 'TABS9-256', 'Galaxy Tab S9 - 256GB', 799.99, 18, 5),
+  ((SELECT id FROM products WHERE slug='samsung-galaxy-tab-s9'), 'TABS9-512', 'Galaxy Tab S9 - 512GB', 899.99, 12, 5)
+ON CONFLICT (sku) DO UPDATE SET
+  product_id = EXCLUDED.product_id,
+  title = EXCLUDED.title,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Storage'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='256GB'
+WHERE v.sku='TABS9-256'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Storage'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='512GB'
+WHERE v.sku='TABS9-512'
+ON CONFLICT DO NOTHING;
+
+SELECT fn_upsert_product_image('samsung-galaxy-tab-s9', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/samsung-galaxy-tab-s9-front.jpg', 'Samsung Galaxy Tab S9 - front');
+SELECT fn_upsert_product_image('samsung-galaxy-tab-s9', 1, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/samsung-galaxy-tab-s9-with-pen.jpg', 'Samsung Galaxy Tab S9 - with S Pen');
+
+
+-- Tech Axis Snapback Cap
+INSERT INTO products (
+  category_id, brand_id, name, slug, sku, status,
+  summary, description, price, stock_quantity, has_variants, low_stock_threshold
+)
+VALUES (
+  (SELECT id FROM categories WHERE slug='merchandise'),
+  (SELECT id FROM brands WHERE slug='tech-axis'),
+  'Tech Axis Snapback Cap',
+  'tech-axis-snapback-cap',
+  NULL,
+  'active',
+  'Adjustable gaming snapback hat',
+  'Flat-brim snapback cap featuring embroidered Tech Axis logo. Breathable and stylish.',
+  0.00,
+  0,
+  TRUE,
+  5
+)
+ON CONFLICT (slug) DO UPDATE SET
+  category_id = EXCLUDED.category_id,
+  brand_id = EXCLUDED.brand_id,
+  name = EXCLUDED.name,
+  sku = EXCLUDED.sku,
+  status = EXCLUDED.status,
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  has_variants = EXCLUDED.has_variants,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+INSERT INTO product_option_types (product_id, option_type_id)
+SELECT p.id, ot.id
+FROM products p
+JOIN option_types ot ON ot.name IN ('Colour')
+WHERE p.slug='tech-axis-snapback-cap'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variants (product_id, sku, title, price, stock_quantity, low_stock_threshold)
+VALUES
+  ((SELECT id FROM products WHERE slug='tech-axis-snapback-cap'), 'CAP-BLACK', 'Tech Axis Snapback Cap - Black', 24.99, 20, 5),
+  ((SELECT id FROM products WHERE slug='tech-axis-snapback-cap'), 'CAP-GREY',  'Tech Axis Snapback Cap - Grey',  24.99, 18, 5),
+  ((SELECT id FROM products WHERE slug='tech-axis-snapback-cap'), 'CAP-RED',   'Tech Axis Snapback Cap - Red',   24.99, 15, 5)
+ON CONFLICT (sku) DO UPDATE SET
+  product_id = EXCLUDED.product_id,
+  title = EXCLUDED.title,
+  price = EXCLUDED.price,
+  stock_quantity = EXCLUDED.stock_quantity,
+  low_stock_threshold = EXCLUDED.low_stock_threshold;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Colour'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Black'
+WHERE v.sku='CAP-BLACK'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Colour'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Grey'
+WHERE v.sku='CAP-GREY'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO product_variant_option_values (variant_id, option_value_id)
+SELECT v.id, ov.id
+FROM product_variants v
+JOIN option_types ot ON ot.name='Colour'
+JOIN option_values ov ON ov.option_type_id=ot.id AND ov.value='Red'
+WHERE v.sku='CAP-RED'
+ON CONFLICT DO NOTHING;
+
+SELECT fn_upsert_product_image('tech-axis-snapback-cap', 0, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/tech-axis-snapback-black.jpg', 'Tech Axis Snapback Cap - black');
+SELECT fn_upsert_product_image('tech-axis-snapback-cap', 1, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/tech-axis-snapback-grey.jpg', 'Tech Axis Snapback Cap - grey');
+SELECT fn_upsert_product_image('tech-axis-snapback-cap', 2, 'https://cs2team7.cs2410-web01pvm.aston.ac.uk/images/tech-axis-snapback-red.jpg', 'Tech Axis Snapback Cap - red');
 
 
 COMMIT;
