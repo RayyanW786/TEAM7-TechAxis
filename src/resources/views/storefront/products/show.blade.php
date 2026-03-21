@@ -154,6 +154,27 @@
     </div>
 </div>
 
+<section
+    class="card shadow-sm mt-4 product-reviews-card"
+    id="productReviewsSection"
+    data-product-reviews-root
+    data-product-id="{{ (int) $product->id }}"
+    data-login-url="{{ route('login.page') }}"
+    data-is-authenticated="{{ auth()->check() ? '1' : '0' }}"
+    data-write-review="{{ request()->boolean('write_review') ? '1' : '0' }}"
+    data-selected-order-item-id="{{ (int) request()->query('order_item_id', 0) }}"
+>
+    <div class="card-body">
+        <div class="product-reviews-intro">
+            <div>
+                <h2 class="h4 mb-2">Customer reviews</h2>
+                <p class="text-muted mb-0">See what verified buyers think and share your own experience after a completed purchase.</p>
+            </div>
+        </div>
+        <div data-product-reviews-app></div>
+    </div>
+</section>
+
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -193,5 +214,6 @@
 
 @push('scripts')
 <script type="module" src="{{ asset('js/storefront/products-show.js') }}"></script>
+<script type="module" src="{{ asset('js/storefront/product-reviews.js') }}"></script>
 <script type="module" src="{{ asset('js/storefront/product-compare.js') }}"></script>
 @endpush

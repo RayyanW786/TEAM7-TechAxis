@@ -579,6 +579,8 @@ CREATE TABLE IF NOT EXISTS product_reviews (
 );
 CREATE INDEX IF NOT EXISTS idx_product_reviews_product ON product_reviews(product_id);
 CREATE INDEX IF NOT EXISTS idx_product_reviews_user ON product_reviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_product_reviews_order_item ON product_reviews(order_item_id);
+CREATE INDEX IF NOT EXISTS idx_product_reviews_created_at ON product_reviews(created_at DESC);
 
 
 CREATE TABLE IF NOT EXISTS service_reviews (
@@ -589,6 +591,85 @@ CREATE TABLE IF NOT EXISTS service_reviews (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (user_id)
 );
+CREATE INDEX IF NOT EXISTS idx_service_reviews_created_at ON service_reviews(created_at DESC);
+
+CREATE OR REPLACE FUNCTION fn_get_product_review_summary(p_product_id BIGINT)
+RETURNS TABLE(
+  average_rating NUMERIC(4,2),
+  review_count BIGINT,
+  verified_review_count BIGINT,
+  five_star_count BIGINT,
+  four_star_count BIGINT,
+  three_star_count BIGINT,
+  two_star_count BIGINT,
+  one_star_count BIGINT
+)
+LANGUAGE SQL
+AS $$
+  SELECT
+    COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.00)::NUMERIC(4,2) AS average_rating,
+    COUNT(*)::BIGINT AS review_count,
+    COUNT(r.order_item_id)::BIGINT AS verified_review_count,
+    COUNT(*) FILTER (WHERE r.rating = 5)::BIGINT AS five_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 4)::BIGINT AS four_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 3)::BIGINT AS three_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 2)::BIGINT AS two_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 1)::BIGINT AS one_star_count
+  FROM product_reviews r
+  WHERE r.product_id = p_product_id;
+$$;
+
+CREATE OR REPLACE FUNCTION fn_get_service_review_summary()
+RETURNS TABLE(
+  average_rating NUMERIC(4,2),
+  review_count BIGINT,
+  five_star_count BIGINT,
+  four_star_count BIGINT,
+  three_star_count BIGINT,
+  two_star_count BIGINT,
+  one_star_count BIGINT
+)
+LANGUAGE SQL
+AS $$
+  SELECT
+    COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.00)::NUMERIC(4,2) AS average_rating,
+    COUNT(*)::BIGINT AS review_count,
+    COUNT(*) FILTER (WHERE r.rating = 5)::BIGINT AS five_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 4)::BIGINT AS four_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 3)::BIGINT AS three_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 2)::BIGINT AS two_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 1)::BIGINT AS one_star_count
+  FROM service_reviews r;
+$$;
+
+CREATE OR REPLACE FUNCTION fn_get_review_eligible_order_items(p_user_id BIGINT, p_product_id BIGINT)
+RETURNS TABLE(
+  order_item_id BIGINT,
+  order_id BIGINT,
+  variant_id BIGINT,
+  variant_title TEXT,
+  quantity INT,
+  unit_price NUMERIC(12,2),
+  order_completed_at TIMESTAMPTZ
+)
+LANGUAGE SQL
+AS $$
+  SELECT
+    oi.id AS order_item_id,
+    oi.order_id,
+    oi.variant_id,
+    pv.title AS variant_title,
+    oi.quantity,
+    oi.unit_price,
+    COALESCE(o.updated_at, o.created_at) AS order_completed_at
+  FROM order_items oi
+  JOIN orders o ON o.id = oi.order_id
+  LEFT JOIN product_variants pv ON pv.id = oi.variant_id
+  WHERE o.user_id = p_user_id
+    AND oi.product_id = p_product_id
+    AND o.status = 'completed'
+  ORDER BY COALESCE(o.updated_at, o.created_at) DESC, oi.id DESC;
+$$;
 
 -- Search function
 CREATE OR REPLACE FUNCTION fn_search_products(

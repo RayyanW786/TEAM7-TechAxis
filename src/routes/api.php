@@ -29,11 +29,13 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/featured', [ProductController::class, 'featured']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
 Route::get('/products/{product}/images', [ProductImageController::class, 'index']);
-Route::get('/products/{product}/reviews', [ReviewController::class, 'productIndex']);
 
 Route::get('/option-types', [OptionTypeController::class, 'index']);
 
 Route::middleware(['web'])->group(function () {
+    Route::get('/products/{product}/reviews', [ReviewController::class, 'productIndex']);
+    Route::get('/service-reviews', [ReviewController::class, 'serviceIndex']);
+
     Route::get('/cart', [CartController::class, 'show']);
     Route::post('/cart/items', [CartController::class, 'addItem']);
     Route::patch('/cart/items/{cartItemId}', [CartController::class, 'setItemQuantity']);
@@ -115,6 +117,8 @@ Route::middleware(['web'])->group(function () {
         Route::post('/inventory/transactions', [InventoryController::class, 'storeTransaction']);
 
         Route::get('/admin/sales-summary', [AdminReportsController::class, 'salesSummary']);
+        Route::get('/admin/reviews/products', [ReviewController::class, 'adminProductIndex']);
+        Route::get('/admin/reviews/service', [ReviewController::class, 'adminServiceIndex']);
     });
 
 });

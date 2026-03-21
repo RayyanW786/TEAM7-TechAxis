@@ -41,6 +41,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/products/{product}', function (Product $product) {
         return view('admin.products.edit', compact('product'));
     });
+    Route::get('/admin/reviews', function () {
+        return view('admin.reviews.index');
+    })->name('admin.reviews.index');
 });
 
 // About page

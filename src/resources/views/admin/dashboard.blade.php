@@ -18,6 +18,11 @@
                 <br>
                 Manage product listings and stock
             </a>
+            <a href="{{ url('/admin/reviews') }}" class="admin-panel">
+                <strong>Reviews</strong>
+                <br>
+                Monitor product and service reviews
+            </a>
             <a href="{{ route('under-construction') }}" class="admin-panel">
                 <strong>👥 Support Tickets</strong>
                 <br>

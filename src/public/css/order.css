@@ -15,6 +15,26 @@
 .item-name { font-weight: 900; }
 .item-meta { opacity: 0.75; }
 .item-line { text-align: right; font-weight: 900; }
+.item-review-action {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+}
+.item-review-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  color: #fff;
+  background: rgba(255,255,255,0.04);
+  text-decoration: none;
+  font-weight: 700;
+}
+.item-review-link:hover {
+  background: rgba(220, 38, 38, 0.16);
+  border-color: rgba(220, 38, 38, 0.45);
+}
 
 .total {
   margin-top: 14px;
