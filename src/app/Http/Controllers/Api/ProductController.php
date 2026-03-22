@@ -98,11 +98,16 @@ class ProductController extends ApiController
 
     public function show(Product $product)
     {
-        $product->load(['category', 'brand', 'images', 'variants', 'optionTypes.values']);
+        $product->load(['category', 'brand', 'images', 'variants', 'optionTypes.values'])
+            ->loadCount('reviews')
+            ->loadAvg('reviews', 'rating');
 
         return response()->json([
             'product' => $product,
             'effective_price' => $product->effectivePrice(),
+            'stock_state' => $product->stockState(),
+            'stock_label' => $product->stockLabel(),
+            'total_available_stock' => $product->totalAvailableStock(),
         ]);
     }
 

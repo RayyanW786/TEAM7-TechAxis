@@ -7,18 +7,26 @@
     $summaryText = $product->summary ?: 'No Product summary found';
     $descriptionText = $product->description ?: 'No Product description found';
     $images = $product->images ?? collect();
+    $primaryImageUrl = optional($images->first())->url;
+    $stockState = $product->stockState();
+    $stockLabel = $product->stockLabel();
+    $stockClass = match ($stockState) {
+        'out_of_stock' => 'stock-badge-out',
+        'low_stock' => 'stock-badge-low',
+        default => 'stock-badge-in',
+    };
 @endphp
 
-<div class="d-flex align-items-center justify-content-between mb-3">
-    <a href="{{ route('products.index') }}" class="text-decoration-none">← Back to products</a>
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 product-page-topbar">
+    <a href="{{ route('products.index') }}" class="text-decoration-none">&larr; Back to products</a>
 
     <a href="{{ route('cart.show') }}" class="btn btn-outline-primary btn-sm">
         View cart
     </a>
 </div>
 
-<div class="row g-4">
-    <div class="col-12 col-lg-6">
+<div class="row g-4 product-detail-grid">
+    <div class="col-12 col-lg-6 product-media-column">
         <div class="card shadow-sm">
             <div class="card-body">
                 @if ($images->count() > 0)
@@ -50,7 +58,7 @@
                     </div>
 
                     @if ($images->count() > 1)
-                        <div class="d-flex gap-2 flex-wrap mt-3">
+                        <div class="d-flex gap-2 flex-wrap mt-3 product-thumbs">
                             @foreach ($images as $index => $img)
                                 <button
                                     type="button"
@@ -74,12 +82,25 @@
         </div>
     </div>
 
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-6 product-info-column">
         <h1 class="h3 section-title mb-1">{{ $product->name }}</h1>
         <div class="accent-rule mb-3"></div>
 
         <div class="fs-4 fw-semibold mb-3" id="priceText">
-            £{{ number_format((float) $effectivePrice, 2) }}
+            &pound;{{ number_format((float) $effectivePrice, 2) }}
+        </div>
+
+        <div class="product-stock-summary mb-3">
+            <span class="product-stock-badge {{ $stockClass }}" data-product-stock-badge>{{ $stockLabel }}</span>
+            <p class="text-muted small mb-0 mt-2" data-product-stock-message>
+                @if ($stockState === 'out_of_stock')
+                    This item is currently unavailable. You can still browse the details and check back soon.
+                @elseif ($stockState === 'low_stock')
+                    Stock is running low, so it may sell out soon.
+                @else
+                    Ready to ship while current stock lasts.
+                @endif
+            </p>
         </div>
 
         <div class="card shadow-sm mb-3">
@@ -98,7 +119,7 @@
 
         <div id="messageBox" class="d-none" role="alert"></div>
 
-        <div class="card shadow-sm">
+        <div class="card shadow-sm purchase-card">
             <div class="card-body">
                 @if ($product->has_variants && $product->variants->count())
                     <div class="mb-3">
@@ -106,8 +127,13 @@
                         <select id="variantSelect" class="form-select">
                             <option value="">Select...</option>
                             @foreach ($product->variants as $variant)
-                                <option value="{{ $variant->id }}" data-price="{{ $variant->price }}">
-                                    {{ $variant->title ?: $variant->sku }} — £{{ number_format((float) $variant->price, 2) }}
+                                <option
+                                    value="{{ $variant->id }}"
+                                    data-price="{{ $variant->price }}"
+                                    data-stock-quantity="{{ (int) $variant->stock_quantity }}"
+                                    data-low-stock-threshold="{{ (int) $variant->low_stock_threshold }}"
+                                >
+                                    {{ $variant->title ?: $variant->sku }} - &pound;{{ number_format((float) $variant->price, 2) }}
                                 </option>
                             @endforeach
                         </select>
@@ -121,19 +147,60 @@
                     <div class="form-text">Must be a whole number (1 or more).</div>
                 </div>
 
-                <button
-                    id="addToCartButton"
-                    class="btn btn-primary w-100"
-                    type="button"
-                    data-product-id="{{ (int) $product->id }}"
-                    data-requires-variant="{{ $product->has_variants ? '1' : '0' }}"
-                >
-                    Add to cart
-                </button>
+                <div class="d-grid gap-2 product-action-buttons">
+                    <button
+                        id="addToCartButton"
+                        class="btn btn-primary"
+                        type="button"
+                        data-product-id="{{ (int) $product->id }}"
+                        data-requires-variant="{{ $product->has_variants ? '1' : '0' }}"
+                        data-stock-state="{{ $stockState }}"
+                        data-initial-stock-state="{{ $stockState }}"
+                    >
+                        Add to cart
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary compare-toggle-button"
+                        data-compare-toggle
+                        data-product-id="{{ (int) $product->id }}"
+                        data-product-slug="{{ $product->slug }}"
+                        data-product-name="{{ $product->name }}"
+                        data-product-price="{{ number_format((float) $effectivePrice, 2, '.', '') }}"
+                        data-product-summary="{{ $summaryText }}"
+                        data-product-url="{{ route('products.show', $product) }}"
+                        data-product-image="{{ $primaryImageUrl ?: '' }}"
+                    >
+                        Add to compare
+                    </button>
+                </div>
+                <div class="form-text mt-2">Select up to two products to compare.</div>
             </div>
         </div>
     </div>
 </div>
+
+<section
+    class="card shadow-sm mt-4 product-reviews-card"
+    id="productReviewsSection"
+    data-product-reviews-root
+    data-product-id="{{ (int) $product->id }}"
+    data-login-url="{{ route('login.page') }}"
+    data-is-authenticated="{{ auth()->check() ? '1' : '0' }}"
+    data-write-review="{{ request()->boolean('write_review') ? '1' : '0' }}"
+    data-selected-order-item-id="{{ (int) request()->query('order_item_id', 0) }}"
+>
+    <div class="card-body">
+        <div class="product-reviews-intro">
+            <div>
+                <h2 class="h4 mb-2">Customer reviews</h2>
+                <p class="text-muted mb-0">See what verified buyers think and share your own experience after a completed purchase.</p>
+            </div>
+        </div>
+        <div data-product-reviews-app></div>
+    </div>
+</section>
 
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -174,4 +241,6 @@
 
 @push('scripts')
 <script type="module" src="{{ asset('js/storefront/products-show.js') }}"></script>
+<script type="module" src="{{ asset('js/storefront/product-reviews.js') }}"></script>
+<script type="module" src="{{ asset('js/storefront/product-compare.js') }}"></script>
 @endpush

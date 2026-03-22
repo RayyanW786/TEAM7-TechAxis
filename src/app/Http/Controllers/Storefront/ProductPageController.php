@@ -16,6 +16,7 @@ class ProductPageController extends Controller
     {
         $searchQuery = trim((string) $request->query('q', ''));
         $selectedCategorySlug = trim((string) $request->query('category', ''));
+        $priceMode = $request->query('price_mode') === 'slider' ? 'slider' : 'values';
 
         $minPrice = $request->filled('min_price') ? (string) $request->query('min_price') : null;
         $maxPrice = $request->filled('max_price') ? (string) $request->query('max_price') : null;
@@ -23,6 +24,7 @@ class ProductPageController extends Controller
         $categories = Category::query()
             ->orderBy('name')
             ->get(['id', 'name', 'slug']);
+        $priceBounds = $this->priceBoundsForCategory($selectedCategorySlug !== '' ? $selectedCategorySlug : null);
 
         $perPage = 12;
 
@@ -35,7 +37,10 @@ class ProductPageController extends Controller
         if (! $usingPgSearch) {
             $products = Product::query()
                 ->where('status', ProductStatus::Active)
-                ->with(['images' => fn ($qb) => $qb->orderBy('sort_order')->orderBy('id')])
+                ->with([
+                    'images' => fn ($qb) => $qb->orderBy('sort_order')->orderBy('id'),
+                    'variants:id,product_id,stock_quantity,low_stock_threshold',
+                ])
                 ->orderByDesc('created_at')
                 ->paginate($perPage)
                 ->withQueryString();
@@ -47,6 +52,8 @@ class ProductPageController extends Controller
                 'selectedCategorySlug' => $selectedCategorySlug,
                 'minPrice' => $minPrice,
                 'maxPrice' => $maxPrice,
+                'priceMode' => $priceMode,
+                'priceBounds' => $priceBounds,
             ]);
         }
 
@@ -74,7 +81,10 @@ class ProductPageController extends Controller
         $productsById = Product::query()
             ->whereIn('id', $productIds)
             ->where('status', ProductStatus::Active)
-            ->with(['images' => fn ($qb) => $qb->orderBy('sort_order')->orderBy('id')])
+            ->with([
+                'images' => fn ($qb) => $qb->orderBy('sort_order')->orderBy('id'),
+                'variants:id,product_id,stock_quantity,low_stock_threshold',
+            ])
             ->get()
             ->keyBy('id');
 
@@ -104,6 +114,8 @@ class ProductPageController extends Controller
             'selectedCategorySlug' => $selectedCategorySlug,
             'minPrice' => $minPrice,
             'maxPrice' => $maxPrice,
+            'priceMode' => $priceMode,
+            'priceBounds' => $priceBounds,
         ]);
     }
 
@@ -135,5 +147,60 @@ class ProductPageController extends Controller
         }
 
         return '{' . implode(',', array_keys($unique)) . '}';
+    }
+
+    private function priceBoundsForCategory(?string $categorySlug): array
+    {
+        $status = ProductStatus::Active->value;
+        $categorySql = $categorySlug !== null ? ' and c.slug = ?' : '';
+        $params = [$status];
+
+        if ($categorySlug !== null) {
+            $params[] = $categorySlug;
+        }
+
+        $params[] = $status;
+
+        if ($categorySlug !== null) {
+            $params[] = $categorySlug;
+        }
+
+        $sql = <<<SQL
+select
+  coalesce(min(price_value), 0) as min_price,
+  coalesce(max(price_value), 1000) as max_price
+from (
+  select p.price as price_value
+  from products p
+  join categories c on c.id = p.category_id
+  where p.status = ?
+    and p.has_variants = false
+    {$categorySql}
+
+  union all
+
+  select v.price as price_value
+  from product_variants v
+  join products p on p.id = v.product_id
+  join categories c on c.id = p.category_id
+  where p.status = ?
+    and p.has_variants = true
+    {$categorySql}
+) priced
+SQL;
+
+        $row = DB::selectOne($sql, $params);
+
+        $min = isset($row->min_price) ? (float) $row->min_price : 0.0;
+        $max = isset($row->max_price) ? (float) $row->max_price : 1000.0;
+
+        if ($max < $min) {
+            $max = $min;
+        }
+
+        return [
+            'min' => floor($min),
+            'max' => ceil($max),
+        ];
     }
 }

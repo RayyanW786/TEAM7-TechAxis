@@ -91,7 +91,7 @@
         return;
       }
 
-      renderProducts(items.slice(0, 4));
+      renderProducts(items.slice(0, 6));
     } catch (err) {
       renderError(err?.message || 'Could not load featured items.');
     }

@@ -1,157 +1,148 @@
 @extends('layouts.main')
-@section('title', 'Tech Axis - Register')
-@push('styles')
-    <!-- Fonts we are using across the website -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@300;400;500&display=swap"
-        rel="stylesheet">
+@section('title', 'Register - Tech Axis')
 
-    <!-- Styles used for the account page -->
-    <link rel="stylesheet" href="{{ asset('css/account.css') }}">
+@push('styles')
+    <link href="{{ asset('css/register.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
-    <div class="account-page">
-        <div class="account-panel">
-            <h1 class="account-heading">Register</h1>
+    <div class="card register-card">
+        <h2>Register</h2>
 
-            <div class="account-columns">
-                <!-- REGISTER Card (Middle) -->
-                <section class="account-card account-card-register">
-                    <div class="account-card-header">Create Account</div>
-                    <div class="account-card-body equal-height">
-
-                        <!-- Basic Register Form (Name, Email, Password, Confirm Password) -->
-                        <form id="register-form" method="POST" action="{{ route('register') }}">
-                            @csrf
-                            @if ($errors->any())
-                                <div class="error-messages">
-                                    <ul>
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-
-                            <div class="register-field-row">
-                                <label for="role" class="register-label">Registering As</label>
-                                <select id="role" class="register-input" name="role" required>
-                                    <option value="customer">Customer</option>
-                                    <option value="admin">Admin</option>
-                                </select>
-                            </div>
-
-                            <div class="register-field-row">
-                                <label for="name" class="register-label">Full Name</label>
-                                <input id="name" class="register-input" type="text" name="name" required>
-                            </div>
-
-                            <div class="register-field-row">
-                                <label for="email" class="register-label">Email</label>
-                                <input id="email" class="register-input" type="email" name="email" required>
-                            </div>
-
-                            <div class="register-field-row">
-                                <label for="password" class="register-label">Password</label>
-                                <input id="password" class="register-input" type="password" name="password" required>
-                            </div>
-
-                            <!-- Confirm password will only show if password has something written in there -->
-                            <div class="register-field-row" id="confirm-row">
-                                <label class="register-label">Confirm Password</label>
-                                <input id="password_confirmation" class="register-input" type="password"
-                                    name="password_confirmation" required>
-                            </div>
-                            <div class="register-field-row">
-                                <div id="admin_code_row">
-                                    <label for="admin_code" class="register-label">Admin Code</label>
-                                    <input type="text" class="register-input" name="admin_code" id="admin_code">
-                                </div>
-                            </div>
-
-                            <button type="submit" class="register-button">
-                                REGISTER
-                            </button>
-
-                            <!-- Error text appears if passwords don't match -->
-                            <p id="register-error" class="register-error"></p>
-                        </form>
-                        <p class="JUSTCHECKING">Already have an Account? <a href="{{ route('login.page') }}">Log In</a></p>
-
-                    </div>
-                </section>
-
+        @if ($errors->any())
+            <div class="error-messages">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
-        </div>
+        @endif
+
+        <form id="register-form" method="POST" action="{{ route('register') }}" novalidate>
+            @csrf
+
+            <label for="role">Registering As</label>
+            <select id="role" name="role" required>
+                <option value="customer" @selected(old('role', 'customer') === 'customer')>Customer</option>
+                <option value="admin" @selected(old('role') === 'admin')>Admin</option>
+            </select>
+
+            <label for="name">Full Name</label>
+            <input id="name" type="text" name="name" value="{{ old('name') }}" required autocomplete="name">
+
+            <label for="email">Email</label>
+            <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="email">
+
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" required autocomplete="new-password">
+
+            <div id="pw-checklist" class="pw-checklist" aria-live="polite">
+                <div class="pw-checklist-title">Password must include:</div>
+                <ul>
+                    <li class="pw-rule not-met" id="rule-len">At least 8 characters</li>
+                    <li class="pw-rule not-met" id="rule-upper">At least one uppercase letter</li>
+                    <li class="pw-rule not-met" id="rule-lower">At least one lowercase letter</li>
+                    <li class="pw-rule not-met" id="rule-num">At least one number</li>
+                    <li class="pw-rule not-met" id="rule-sym">At least one symbol</li>
+                </ul>
+            </div>
+
+            <label for="password_confirmation">Confirm Password</label>
+            <input id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password">
+
+            <div id="admin-code-wrap" class="admin-code-wrap d-none">
+                <label for="admin_code">Admin Code</label>
+                <input id="admin_code" type="text" name="admin_code" value="{{ old('admin_code') }}">
+            </div>
+
+            <button type="submit">Create Account</button>
+        </form>
+
+        <p class="auth-alt">Already have an account? <a href="{{ route('login.page') }}">Log In</a></p>
     </div>
 @endsection
 
 @push('scripts')
-
     <script>
-        // show & hide confirm password + a very simple password check
         document.addEventListener('DOMContentLoaded', () => {
+            const roleSelect = document.getElementById('role');
+            const adminCodeWrap = document.getElementById('admin-code-wrap');
             const passwordInput = document.getElementById('password');
-            const confirmRow = document.getElementById('confirm-row');
             const confirmInput = document.getElementById('password_confirmation');
             const registerForm = document.getElementById('register-form');
-            const errorMessageEl = document.getElementById('register-error');
 
-            // Hides confirm row
-            if (confirmRow) {
-                confirmRow.style.display = 'none';
-            }
+            const setRule = (el, met) => {
+                if (!el) return;
+                el.classList.toggle('is-met', met);
+                el.classList.toggle('not-met', !met);
+            };
 
-            // Show confirm box when the user starts typing a password
-            if (passwordInput && confirmRow) {
-                passwordInput.addEventListener('input', () => {
-                    const value = passwordInput.value.trim();
+            const passwordRules = (pw) => ({
+                len: pw.length >= 8,
+                upper: /[A-Z]/.test(pw),
+                lower: /[a-z]/.test(pw),
+                num: /[0-9]/.test(pw),
+                sym: /[^A-Za-z0-9]/.test(pw),
+            });
 
-                    if (value.length > 0) {
-                        confirmRow.style.display = 'flex';
-                    } else {
-                        confirmRow.style.display = 'none';
+            const isStrongPassword = (pw) => {
+                const r = passwordRules(pw);
+                return r.len && r.upper && r.lower && r.num && r.sym;
+            };
 
-                        if (confirmInput) {
-                            confirmInput.value = '';
-                        }
-                    }
-                });
-            }
+            const updateChecklist = (pw) => {
+                const r = passwordRules(pw);
+                setRule(document.getElementById('rule-len'), r.len);
+                setRule(document.getElementById('rule-upper'), r.upper);
+                setRule(document.getElementById('rule-lower'), r.lower);
+                setRule(document.getElementById('rule-num'), r.num);
+                setRule(document.getElementById('rule-sym'), r.sym);
+            };
 
-            // very basic front-end check. The passwords must match
-            if (registerForm && passwordInput && confirmInput) {
-                registerForm.addEventListener('submit', (e) => {
-                    if (errorMessageEl) {
-                        errorMessageEl.textContent = '';
-                    }
+            const toggleAdminCodeRow = () => {
+                if (!roleSelect || !adminCodeWrap) return;
+                adminCodeWrap.classList.toggle('d-none', roleSelect.value !== 'admin');
+            };
 
-                    const passwordValue = passwordInput.value.trim();
-                    const confirmValue = confirmInput.value.trim();
+            const updatePasswordValidity = () => {
+                const pw = passwordInput.value;
+                updateChecklist(pw);
+                passwordInput.setCustomValidity(
+                    isStrongPassword(pw) ? '' : 'Password must include uppercase, lowercase, number, symbol, and be 8+ chars.'
+                );
+            };
 
-                    if (passwordValue !== confirmValue) {
-                        e.preventDefault();
+            const updateConfirmValidity = () => {
+                const confirmVal = confirmInput.value;
+                if (confirmVal.length === 0) {
+                    confirmInput.setCustomValidity('');
+                    return;
+                }
 
-                        if (errorMessageEl) {
-                            errorMessageEl.textContent = 'Passwords do not match. Please try again.';
-                        }
+                confirmInput.setCustomValidity(
+                    passwordInput.value === confirmVal ? '' : 'Passwords do not match.'
+                );
+            };
 
-                        confirmInput.focus();
-                    }
-                });
-            }
+            roleSelect?.addEventListener('change', toggleAdminCodeRow);
+            passwordInput?.addEventListener('input', () => {
+                updatePasswordValidity();
+                updateConfirmValidity();
+            });
+            confirmInput?.addEventListener('input', updateConfirmValidity);
+
+            registerForm?.addEventListener('submit', (e) => {
+                updatePasswordValidity();
+                updateConfirmValidity();
+                if (!registerForm.checkValidity()) {
+                    e.preventDefault();
+                    registerForm.reportValidity();
+                }
+            });
+
+            toggleAdminCodeRow();
+            updateChecklist(passwordInput?.value ?? '');
         });
-
-        const roleSelect = document.getElementById('role');
-        const adminCodeRow = document.getElementById('admin_code_row');
-        function toggleAdminCodeRow() {
-            if (roleSelect.value === 'admin') {
-                adminCodeRow.style.display = 'block';
-            } else {
-                adminCodeRow.style.display = 'none';
-            }
-        }
-        roleSelect.addEventListener('change', toggleAdminCodeRow);
-        toggleAdminCodeRow();
     </script>
 @endpush

@@ -12,14 +12,14 @@
         <h1 class="customerdashboard-title">Customer Dashboard</h1>
 
         <div class="dash-actions">
-            <a href="{{ url('/orders') }}" class="dash-box">
+            <a href="{{ route('orders.index') }}" class="dash-box">
                 <h2>View Orders</h2>
                 <p>Check your order history and track deliveries.</p>
             </a>
 
-            <a href="{{ route('under-construction') }}" class="dash-box">
-                <h2>Manage Account</h2>
-                <p>Edit your personal details or change your password.</p>
+            <a href="{{ route('password.change') }}" class="dash-box">
+                <h2>Change Password</h2>
+                <p>Change your password.</p>
             </a>
 
             <a href="{{ url('/contact') }}" class="dash-box">

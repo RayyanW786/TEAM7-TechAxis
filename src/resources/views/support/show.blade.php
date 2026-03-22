@@ -46,9 +46,11 @@
 
         <form method="POST" action="{{ route('support.tickets.messages.store', $ticket) }}" class="message-form">
             @csrf
-            <textarea class="form-textarea" name="body" rows="3" maxlength="5000"
+            <textarea class="form-textarea message-form__textarea" name="body" rows="3" maxlength="5000"
                       placeholder="Write a message…" required></textarea>
-            <button class="primary-btn" type="submit">Send</button>
+            <div class="message-form__actions">
+                <button class="primary-btn message-form__button" type="submit">Send message</button>
+            </div>
         </form>
     </div>
 </div>

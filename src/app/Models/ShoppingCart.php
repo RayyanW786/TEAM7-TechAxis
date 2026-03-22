@@ -87,6 +87,14 @@ class ShoppingCart extends Model
             ->findOrFail((int) $row->order_id);
     }
 
+    public function previewDiscount(?int $userId, ?string $discountCode): object
+    {
+        return DB::selectOne(
+            'select * from fn_preview_cart_discount(?, ?, ?)',
+            [$this->id, $userId, $discountCode]
+        );
+    }
+
     protected function resolveUnitPrice(int $productId, ?int $variantId): string
     {
         if ($variantId) {

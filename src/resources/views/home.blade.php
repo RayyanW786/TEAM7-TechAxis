@@ -65,7 +65,7 @@ By E
         <div
             class="featured-grid"
             id="featured-products-grid"
-            data-api-url="{{ url('/api/products/featured?limit=4') }}"
+            data-api-url="{{ url('/api/products/featured?limit=6') }}"
             data-product-base-url="{{ url('/products') }}"
         ></div>
 

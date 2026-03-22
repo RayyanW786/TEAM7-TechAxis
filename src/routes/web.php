@@ -8,6 +8,7 @@ use App\Http\Controllers\Storefront\CheckoutPageController;
 use App\Http\Controllers\Storefront\OrderPageController;
 use App\Http\Controllers\Storefront\SupportTicketPageController;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
 
 
 // Home page
@@ -31,6 +32,33 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/orders', function () {
         return view('admin.orders');
     })->name('admin.orders');
+    Route::get('/admin/products', function () {
+        return view('admin.products.index');
+    })->name('admin.products.index');
+    Route::get('/admin/products/create', function () {
+        return view('admin.products.create');
+    })->name('admin.products.create');
+    Route::get('/admin/products/{product}', function (Product $product) {
+        return view('admin.products.edit', compact('product'));
+    });
+    Route::get('/admin/reviews', function () {
+        return view('admin.reviews.index');
+    })->name('admin.reviews.index');
+    Route::get('/admin/tickets', function () {
+        return view('admin.tickets.index');
+    })->name('admin.tickets.index');
+    Route::get('/admin/discounts', function () {
+        return view('admin.discounts.index');
+    })->name('admin.discounts.index');
+    Route::get('/admin/inventory', function () {
+        return view('admin.inventory.index');
+    })->name('admin.inventory.index');
+    Route::get('/admin/customers', function () {
+        return view('admin.customers.index');
+    })->name('admin.customers.index');
+    Route::get('/admin/reports', function () {
+        return view('admin.reports.index');
+    })->name('admin.reports.index');
 });
 
 // About page
@@ -47,10 +75,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/tickets/{ticket}', [SupportTicketPageController::class, 'show'])->name('tickets.show');
         Route::post('/tickets/{ticket}/messages', [SupportTicketPageController::class, 'storeMessage'])->name('tickets.messages.store');
         Route::get('/tickets/{ticket}/messages', [SupportTicketPageController::class, 'messages'])->name('tickets.messages.index');
+        Route::post('/order-items/{orderItem}/ticket', [SupportTicketPageController::class, 'storeOrderItemTicket'])->name('tickets.order-item.store');
     });
+
+    Route::get('/change-password', function () {
+        return view('change_password');
+    })->name('password.change');
+
+    Route::post('/change-password', [UsersController::class, 'changePassword'])
+        ->name('password.update');
 });
 
-Route::view('/orders', 'admin.orders')->middleware('auth')->name('orders');
+Route::get('/orders', [OrderPageController::class, 'index'])
+    ->middleware('auth')
+    ->name('orders.index');
 
 Route::get('/customer/dashboard', function () {
     return view('customerDashboard');
