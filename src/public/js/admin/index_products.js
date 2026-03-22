@@ -1,36 +1,44 @@
-console.log('Fetching products...');
-fetch('/api/products', {
-    credentials: 'same-origin'
-})
-.then(res => res.json())
-.then(data => {
-    console.log('API response:', data);
-
+fetch('/api/products', { credentials: 'same-origin' })
+  .then(response => response.json())
+  .then(data => {
     const container = document.getElementById('product-list');
-    container.innerHTML = '';
+    if (!container) return;
 
     const products = data.data || data.items || [];
+    container.innerHTML = '';
 
-    if (products.length === 0) {
-        container.innerHTML = '<p>No products found</p>';
-        return;
+    if (!products.length) {
+      container.innerHTML = '<div class="admin-empty">No products found.</div>';
+      return;
     }
 
     products.forEach(product => {
-        const el = document.createElement('a');
-        el.href = '/admin/products/' + product.id;
-        el.className = 'admin-panel';
-
-        el.innerHTML = `
-            <strong>${product.name}</strong>
-            <span>£${product.price ?? product.effective_price ?? '0.00'}</span>
-            <br>
-            <span>Stock: ${product.stock_quantity ?? 0}</span>
-        `;
-
-        container.appendChild(el);
+      const el = document.createElement('a');
+      el.href = '/admin/products/' + product.id;
+      el.className = 'admin-link-card';
+      el.innerHTML = `
+        <strong>${escapeHtml(product.name)}</strong>
+        <span>${escapeHtml(formatMoney(product.price ?? product.effective_price ?? 0))} | Stock ${product.stock_quantity ?? 0}</span>
+      `;
+      container.appendChild(el);
     });
-})
-.catch(err => {
-    console.error('Fetch error:', err);
-});
+  })
+  .catch(() => {
+    const container = document.getElementById('product-list');
+    if (container) {
+      container.innerHTML = '<div class="admin-empty">Failed to load products.</div>';
+    }
+  });
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function formatMoney(amount) {
+  return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(Number(amount ?? 0));
+}

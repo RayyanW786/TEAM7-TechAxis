@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrderItem;
 use App\Models\SupportMessage;
 use App\Models\SupportTicket;
+use App\Enums\TicketKind;
 use App\Enums\TicketStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -50,6 +52,82 @@ class SupportTicketPageController extends Controller
             $ticket->update([
                 'last_message_at' => now(),
                 'status'          => TicketStatus::WaitingOnAdmin, // customer has sent message
+            ]);
+
+            return $ticket;
+        });
+
+        return redirect()->route('support.tickets.show', $ticket)->with('success', 'Ticket created.');
+    }
+
+    public function storeOrderItemTicket(Request $request, OrderItem $orderItem)
+    {
+        abort_if((int) $orderItem->order?->user_id !== (int) Auth::id(), 404);
+        abort_if($orderItem->order?->status?->value === 'cancelled', 422, 'Cancelled orders cannot open tickets.');
+
+        $kind = TicketKind::from($request->validate([
+            'ticket_kind' => ['required', 'in:product_support,refund_request'],
+        ])['ticket_kind']);
+
+        $existing = SupportTicket::query()
+            ->where('created_by_user_id', Auth::id())
+            ->where('order_item_id', $orderItem->id)
+            ->where('ticket_kind', $kind)
+            ->where('status', '!=', TicketStatus::Closed)
+            ->first();
+
+        if ($existing) {
+            return redirect()->route('support.tickets.show', $existing)
+                ->with('success', 'An open ticket already exists for this request, so we took you there.');
+        }
+
+        $orderItem->loadMissing(['order', 'product', 'variant']);
+
+        $subject = $kind === TicketKind::RefundRequest
+            ? "Refund request for {$orderItem->product?->name} (Order #{$orderItem->order_id})"
+            : "Product support for {$orderItem->product?->name} (Order #{$orderItem->order_id})";
+
+        $bodyLines = [
+            'This ticket was created from a purchased product.',
+            'Product: ' . ($orderItem->product?->name ?? $orderItem->name_snapshot),
+        ];
+
+        if ($orderItem->variant?->title) {
+            $bodyLines[] = 'Variant: ' . $orderItem->variant->title;
+        }
+
+        $bodyLines[] = 'Order: #' . $orderItem->order_id;
+        $bodyLines[] = 'Quantity: ' . $orderItem->quantity;
+        $bodyLines[] = 'Unit price: GBP ' . number_format((float) $orderItem->unit_price, 2);
+        $bodyLines[] = '';
+        $bodyLines[] = $kind === TicketKind::RefundRequest
+            ? 'The customer is requesting a refund for this item. Please review the order and reply with the next steps.'
+            : 'The customer is requesting support with this purchased item. Please review the order and reply with the next steps.';
+
+        $ticket = DB::transaction(function () use ($subject, $bodyLines, $kind, $orderItem) {
+            $ticket = SupportTicket::create([
+                'created_by_user_id' => Auth::id(),
+                'subject' => $subject,
+                'status' => TicketStatus::Open,
+                'ticket_kind' => $kind,
+                'order_id' => $orderItem->order_id,
+                'order_item_id' => $orderItem->id,
+                'product_id' => $orderItem->product_id,
+                'variant_id' => $orderItem->variant_id,
+                'last_message_at' => now(),
+            ]);
+
+            SupportMessage::create([
+                'ticket_id' => $ticket->id,
+                'sender_user_id' => Auth::id(),
+                'body' => implode("\n", $bodyLines),
+                'is_internal' => false,
+                'created_at' => now(),
+            ]);
+
+            $ticket->update([
+                'last_message_at' => now(),
+                'status' => TicketStatus::WaitingOnAdmin,
             ]);
 
             return $ticket;

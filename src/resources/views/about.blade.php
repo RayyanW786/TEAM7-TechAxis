@@ -42,6 +42,23 @@
                     storefront with reliable customer support and a clear focus on user needs.
                 </p>
             </div>
+
+            <div
+                class="ta-service-reviews"
+                data-service-reviews-root
+                data-login-url="{{ route('login.page') }}"
+                data-is-authenticated="{{ auth()->check() ? '1' : '0' }}"
+            >
+                <div class="ta-service-reviews-head">
+                    <h2>Customer testimonials</h2>
+                    <p>Read what customers say about the Tech Axis experience and leave your own service review.</p>
+                </div>
+                <div data-service-reviews-app></div>
+            </div>
         </section>
     </main>
 @endsection
+
+@push('scripts')
+<script type="module" src="{{ asset('js/storefront/service-reviews.js') }}"></script>
+@endpush

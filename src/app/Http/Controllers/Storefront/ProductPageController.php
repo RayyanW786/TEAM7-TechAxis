@@ -37,7 +37,10 @@ class ProductPageController extends Controller
         if (! $usingPgSearch) {
             $products = Product::query()
                 ->where('status', ProductStatus::Active)
-                ->with(['images' => fn ($qb) => $qb->orderBy('sort_order')->orderBy('id')])
+                ->with([
+                    'images' => fn ($qb) => $qb->orderBy('sort_order')->orderBy('id'),
+                    'variants:id,product_id,stock_quantity,low_stock_threshold',
+                ])
                 ->orderByDesc('created_at')
                 ->paginate($perPage)
                 ->withQueryString();
@@ -78,7 +81,10 @@ class ProductPageController extends Controller
         $productsById = Product::query()
             ->whereIn('id', $productIds)
             ->where('status', ProductStatus::Active)
-            ->with(['images' => fn ($qb) => $qb->orderBy('sort_order')->orderBy('id')])
+            ->with([
+                'images' => fn ($qb) => $qb->orderBy('sort_order')->orderBy('id'),
+                'variants:id,product_id,stock_quantity,low_stock_threshold',
+            ])
             ->get()
             ->keyBy('id');
 

@@ -58,6 +58,9 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ticket_status') THEN
     CREATE TYPE ticket_status AS ENUM ('open', 'waiting_on_admin', 'waiting_on_customer', 'closed');
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'support_ticket_kind') THEN
+    CREATE TYPE support_ticket_kind AS ENUM ('general', 'product_support', 'refund_request');
+  END IF;
 END$$;
 
 -- helper function to update the updated_at timestamp
@@ -99,6 +102,11 @@ CREATE TABLE IF NOT EXISTS support_tickets (
   created_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,  -- requester (customer)
   subject TEXT NOT NULL,
   status ticket_status NOT NULL DEFAULT 'open',
+  ticket_kind support_ticket_kind NOT NULL DEFAULT 'general',
+  order_id BIGINT,
+  order_item_id BIGINT,
+  product_id BIGINT,
+  variant_id BIGINT,
   assigned_to_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,  -- optional, which admin owns it
   last_message_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),  -- for sorting inboxes
   closed_at TIMESTAMPTZ,
@@ -106,10 +114,19 @@ CREATE TABLE IF NOT EXISTS support_tickets (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS ticket_kind support_ticket_kind NOT NULL DEFAULT 'general';
+ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS order_id BIGINT;
+ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS order_item_id BIGINT;
+ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS product_id BIGINT;
+ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS variant_id BIGINT;
 CREATE INDEX IF NOT EXISTS idx_support_tickets_status ON support_tickets(status);
 CREATE INDEX IF NOT EXISTS idx_support_tickets_created_by ON support_tickets(created_by_user_id);
 CREATE INDEX IF NOT EXISTS idx_support_tickets_assigned_to ON support_tickets(assigned_to_user_id);
 CREATE INDEX IF NOT EXISTS idx_support_tickets_last_msg ON support_tickets(last_message_at DESC);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_kind ON support_tickets(ticket_kind);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_order_id ON support_tickets(order_id);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_order_item_id ON support_tickets(order_item_id);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_product_id ON support_tickets(product_id);
 
 CREATE OR REPLACE TRIGGER trg_support_tickets_touch_upd BEFORE UPDATE ON support_tickets
 FOR EACH ROW EXECUTE FUNCTION fn_touch_updated_at();
@@ -445,6 +462,33 @@ CREATE TABLE IF NOT EXISTS return_requests (
 CREATE INDEX IF NOT EXISTS idx_returns_user ON return_requests(user_id);
 CREATE INDEX IF NOT EXISTS idx_returns_status ON return_requests(status);
 
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_support_tickets_order_id') THEN
+    ALTER TABLE support_tickets
+      ADD CONSTRAINT fk_support_tickets_order_id
+      FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL;
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_support_tickets_order_item_id') THEN
+    ALTER TABLE support_tickets
+      ADD CONSTRAINT fk_support_tickets_order_item_id
+      FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE SET NULL;
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_support_tickets_product_id') THEN
+    ALTER TABLE support_tickets
+      ADD CONSTRAINT fk_support_tickets_product_id
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL;
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_support_tickets_variant_id') THEN
+    ALTER TABLE support_tickets
+      ADD CONSTRAINT fk_support_tickets_variant_id
+      FOREIGN KEY (variant_id) REFERENCES product_variants(id) ON DELETE SET NULL;
+  END IF;
+END$$;
+
 
 -- Inventory ledger + alerts
 CREATE TABLE IF NOT EXISTS inventory_transactions (
@@ -579,6 +623,8 @@ CREATE TABLE IF NOT EXISTS product_reviews (
 );
 CREATE INDEX IF NOT EXISTS idx_product_reviews_product ON product_reviews(product_id);
 CREATE INDEX IF NOT EXISTS idx_product_reviews_user ON product_reviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_product_reviews_order_item ON product_reviews(order_item_id);
+CREATE INDEX IF NOT EXISTS idx_product_reviews_created_at ON product_reviews(created_at DESC);
 
 
 CREATE TABLE IF NOT EXISTS service_reviews (
@@ -589,6 +635,85 @@ CREATE TABLE IF NOT EXISTS service_reviews (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (user_id)
 );
+CREATE INDEX IF NOT EXISTS idx_service_reviews_created_at ON service_reviews(created_at DESC);
+
+CREATE OR REPLACE FUNCTION fn_get_product_review_summary(p_product_id BIGINT)
+RETURNS TABLE(
+  average_rating NUMERIC(4,2),
+  review_count BIGINT,
+  verified_review_count BIGINT,
+  five_star_count BIGINT,
+  four_star_count BIGINT,
+  three_star_count BIGINT,
+  two_star_count BIGINT,
+  one_star_count BIGINT
+)
+LANGUAGE SQL
+AS $$
+  SELECT
+    COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.00)::NUMERIC(4,2) AS average_rating,
+    COUNT(*)::BIGINT AS review_count,
+    COUNT(r.order_item_id)::BIGINT AS verified_review_count,
+    COUNT(*) FILTER (WHERE r.rating = 5)::BIGINT AS five_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 4)::BIGINT AS four_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 3)::BIGINT AS three_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 2)::BIGINT AS two_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 1)::BIGINT AS one_star_count
+  FROM product_reviews r
+  WHERE r.product_id = p_product_id;
+$$;
+
+CREATE OR REPLACE FUNCTION fn_get_service_review_summary()
+RETURNS TABLE(
+  average_rating NUMERIC(4,2),
+  review_count BIGINT,
+  five_star_count BIGINT,
+  four_star_count BIGINT,
+  three_star_count BIGINT,
+  two_star_count BIGINT,
+  one_star_count BIGINT
+)
+LANGUAGE SQL
+AS $$
+  SELECT
+    COALESCE(ROUND(AVG(r.rating)::numeric, 2), 0.00)::NUMERIC(4,2) AS average_rating,
+    COUNT(*)::BIGINT AS review_count,
+    COUNT(*) FILTER (WHERE r.rating = 5)::BIGINT AS five_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 4)::BIGINT AS four_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 3)::BIGINT AS three_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 2)::BIGINT AS two_star_count,
+    COUNT(*) FILTER (WHERE r.rating = 1)::BIGINT AS one_star_count
+  FROM service_reviews r;
+$$;
+
+CREATE OR REPLACE FUNCTION fn_get_review_eligible_order_items(p_user_id BIGINT, p_product_id BIGINT)
+RETURNS TABLE(
+  order_item_id BIGINT,
+  order_id BIGINT,
+  variant_id BIGINT,
+  variant_title TEXT,
+  quantity INT,
+  unit_price NUMERIC(12,2),
+  order_completed_at TIMESTAMPTZ
+)
+LANGUAGE SQL
+AS $$
+  SELECT
+    oi.id AS order_item_id,
+    oi.order_id,
+    oi.variant_id,
+    pv.title AS variant_title,
+    oi.quantity,
+    oi.unit_price,
+    COALESCE(o.updated_at, o.created_at) AS order_completed_at
+  FROM order_items oi
+  JOIN orders o ON o.id = oi.order_id
+  LEFT JOIN product_variants pv ON pv.id = oi.variant_id
+  WHERE o.user_id = p_user_id
+    AND oi.product_id = p_product_id
+    AND o.status = 'completed'
+  ORDER BY COALESCE(o.updated_at, o.created_at) DESC, oi.id DESC;
+$$;
 
 -- Search function
 CREATE OR REPLACE FUNCTION fn_search_products(
@@ -738,6 +863,129 @@ WHERE cart_id = p_cart_id
   AND product_id = p_product_id
   AND ((p_variant_id IS NULL AND variant_id IS NULL) OR variant_id = p_variant_id);
 $$;
+
+
+CREATE OR REPLACE FUNCTION fn_preview_cart_discount(
+  p_cart_id BIGINT,
+  p_user_id BIGINT,
+  p_discount_code TEXT DEFAULT NULL
+)
+RETURNS TABLE (
+  subtotal_amount NUMERIC(12,2),
+  discount_total NUMERIC(12,2),
+  total_amount NUMERIC(12,2),
+  applied_code TEXT
+)
+LANGUAGE PLPGSQL
+AS $$
+DECLARE
+  v_now TIMESTAMPTZ := NOW();
+  v_subtotal NUMERIC(12,2);
+  v_discount NUMERIC(12,2) := 0;
+  v_total NUMERIC(12,2);
+
+  v_code_id BIGINT;
+  v_code_type discount_type;
+  v_code_amount NUMERIC(12,2);
+  v_max_uses INT;
+  v_max_uses_per_user INT;
+  v_min_order_total NUMERIC(12,2);
+  v_code_starts_at TIMESTAMPTZ;
+  v_code_expires_at TIMESTAMPTZ;
+BEGIN
+  SELECT COALESCE(SUM(quantity * unit_price), 0)::NUMERIC(12,2)
+  INTO v_subtotal
+  FROM cart_items
+  WHERE cart_id = p_cart_id;
+
+  IF v_subtotal <= 0 THEN
+    RAISE EXCEPTION 'Cart % is empty', p_cart_id;
+  END IF;
+
+  IF p_discount_code IS NOT NULL THEN
+    SELECT
+      id,
+      type,
+      amount,
+      max_uses,
+      max_uses_per_user,
+      min_order_total,
+      starts_at,
+      expires_at
+    INTO
+      v_code_id,
+      v_code_type,
+      v_code_amount,
+      v_max_uses,
+      v_max_uses_per_user,
+      v_min_order_total,
+      v_code_starts_at,
+      v_code_expires_at
+    FROM discount_codes
+    WHERE code = p_discount_code
+      AND is_active = TRUE;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'Invalid discount code';
+    END IF;
+
+    IF v_code_starts_at IS NOT NULL AND v_now < v_code_starts_at THEN
+      RAISE EXCEPTION 'Discount code not yet active';
+    END IF;
+
+    IF v_code_expires_at IS NOT NULL AND v_now >= v_code_expires_at THEN
+      RAISE EXCEPTION 'Discount code expired';
+    END IF;
+
+    IF v_min_order_total IS NOT NULL AND v_subtotal < v_min_order_total THEN
+      RAISE EXCEPTION 'Order subtotal % is below required minimum % for code %',
+        v_subtotal, v_min_order_total, p_discount_code;
+    END IF;
+
+    IF v_max_uses IS NOT NULL THEN
+      PERFORM 1
+      FROM discount_redemptions
+      WHERE discount_code_id = v_code_id
+      GROUP BY discount_code_id
+      HAVING COUNT(*) >= v_max_uses;
+
+      IF FOUND THEN
+        RAISE EXCEPTION 'Discount code usage limit reached';
+      END IF;
+    END IF;
+
+    IF v_max_uses_per_user IS NOT NULL AND p_user_id IS NOT NULL THEN
+      PERFORM 1
+      FROM discount_redemptions
+      WHERE discount_code_id = v_code_id
+        AND user_id = p_user_id
+      GROUP BY discount_code_id
+      HAVING COUNT(*) >= v_max_uses_per_user;
+
+      IF FOUND THEN
+        RAISE EXCEPTION 'You have used this discount code the maximum allowed times';
+      END IF;
+    END IF;
+
+    IF v_code_type = 'percentage' THEN
+      v_discount := ROUND(v_subtotal * (v_code_amount / 100.0), 2);
+    ELSE
+      v_discount := v_code_amount;
+    END IF;
+
+    IF v_discount > v_subtotal THEN
+      v_discount := v_subtotal;
+    END IF;
+  END IF;
+
+  v_total := v_subtotal - v_discount;
+
+  RETURN QUERY SELECT
+    v_subtotal,
+    v_discount,
+    v_total,
+    p_discount_code;
+END$$;
 
 
 -- Creates order from cart, posts inventory, clears cart

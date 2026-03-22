@@ -15,6 +15,58 @@
 .item-name { font-weight: 900; }
 .item-meta { opacity: 0.75; }
 .item-line { text-align: right; font-weight: 900; }
+.item-review-action {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+}
+.item-support-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.7rem;
+}
+.item-support-actions form {
+  margin: 0;
+}
+.item-review-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  color: #fff;
+  background: rgba(255,255,255,0.04);
+  text-decoration: none;
+  font-weight: 700;
+}
+.item-review-link:hover {
+  background: rgba(220, 38, 38, 0.16);
+  border-color: rgba(220, 38, 38, 0.45);
+}
+.item-support-link,
+.item-refund-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.16);
+  color: #fff;
+  background: rgba(255,255,255,0.04);
+  text-decoration: none;
+  font-weight: 700;
+}
+.item-support-link:hover,
+.item-refund-link:hover {
+  background: rgba(255,255,255,0.08);
+}
+.item-refund-link {
+  border-color: rgba(220, 38, 38, 0.45);
+  background: rgba(220, 38, 38, 0.12);
+}
 
 .total {
   margin-top: 14px;
@@ -36,4 +88,72 @@
   border: 1px solid rgba(255,255,255,0.10);
   background: var(--tech-dark);
   color: var(--tech-light);
+}
+
+.order-history-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.order-history-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.order-history-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  color: #fff;
+  text-decoration: none;
+  transition: 0.18s ease;
+}
+
+.order-history-card:hover {
+  border-color: rgba(220, 38, 38, 0.45);
+  background: rgba(220, 38, 38, 0.08);
+  transform: translateY(-1px);
+}
+
+.order-history-card__head,
+.order-history-card__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.order-history-card__head strong {
+  font-size: 1.02rem;
+}
+
+.order-history-card__status,
+.order-history-card__meta {
+  opacity: 0.82;
+}
+
+.order-history-card__total {
+  font-weight: 900;
+}
+
+.order-history-empty {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1.1rem;
+  border-radius: 18px;
+  border: 1px dashed rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.02);
+}
+
+.order-history-empty h2,
+.order-history-empty p {
+  margin: 0;
+}
+
+.order-history-pagination nav {
+  display: flex;
+  justify-content: center;
 }
