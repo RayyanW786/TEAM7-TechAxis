@@ -17,9 +17,9 @@
                 <p>Check your order history and track deliveries.</p>
             </a>
 
-            <a href="{{ route('under-construction') }}" class="dash-box">
-                <h2>Manage Account</h2>
-                <p>Edit your personal details or change your password.</p>
+            <a href="{{ route('password.change') }}" class="dash-box">
+                <h2>Change Password</h2>
+                <p>Change your password.</p>
             </a>
 
             <a href="{{ url('/contact') }}" class="dash-box">
