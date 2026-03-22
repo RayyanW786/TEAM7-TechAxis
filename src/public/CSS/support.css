@@ -1,0 +1,208 @@
+.support-page {
+  padding: 20px;
+}
+
+.support-header {
+  margin-bottom: 16px;
+}
+
+.support-header.row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.support-title {
+  font-family: "Orbitron", sans-serif;
+  margin: 0;
+}
+
+.support-subtitle {
+  font-family: "Roboto", sans-serif;
+  opacity: 0.85;
+  margin-top: 6px;
+}
+
+.support-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.support-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.support-card-head h2 {
+  font-family: "Orbitron", sans-serif;
+  margin: 0 0 12px 0;
+}
+
+.ticket-row {
+  display: block;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  margin-bottom: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.ticket-row:hover {
+  border-color: rgba(255,0,0,0.55);
+  box-shadow: 0 0 16px rgba(255,0,0,0.2);
+}
+
+.ticket-row-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.ticket-subject {
+  font-family: "Orbitron", sans-serif;
+  font-size: 14px;
+}
+
+.ticket-status {
+  font-family: "Roboto", sans-serif;
+  opacity: 0.85;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.ticket-row-bottom {
+  font-family: "Roboto", sans-serif;
+  opacity: 0.75;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.ticket-pill {
+  font-family: "Roboto", sans-serif;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  opacity: 0.9;
+  text-transform: capitalize;
+}
+
+.ticket-form .form-label {
+  display: block;
+  font-family: "Orbitron", sans-serif;
+  margin: 10px 0 6px;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  padding: 10px 12px;
+  font-family: "Roboto", sans-serif;
+}
+
+.form-textarea {
+  resize: vertical;
+}
+
+.support-alert {
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  font-family: "Roboto", sans-serif;
+}
+
+.support-alert.success {
+  border: 1px solid rgba(0,255,120,0.35);
+  background: rgba(0,255,120,0.08);
+}
+
+.support-alert.error {
+  border: 1px solid rgba(255,0,0,0.35);
+  background: rgba(255,0,0,0.08);
+}
+
+.muted { opacity: 0.75; font-family: "Roboto", sans-serif; }
+.muted.small { font-size: 12px; margin-top: 10px; }
+
+.messages-wrap {
+  margin-bottom: 12px;
+}
+
+.messages {
+  height: 420px;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.35);
+}
+
+.messages-loader {
+  display: none;
+  text-align: center;
+  font-family: "Roboto", sans-serif;
+  opacity: 0.75;
+  padding: 8px 0;
+}
+
+.msg {
+  max-width: 78%;
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  font-family: "Roboto", sans-serif;
+}
+
+.msg.me {
+  margin-left: auto;
+  border-color: rgba(255,0,0,0.35);
+  background: rgba(255,0,0,0.08);
+}
+
+.msg.them {
+  margin-right: auto;
+  background: rgba(255,255,255,0.06);
+}
+
+.msg-meta {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+
+.message-form {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+}
+
+.message-form .form-textarea {
+  flex: 1;
+}
+
+@media (max-width: 900px) {
+  .support-grid { grid-template-columns: 1fr; }
+  .support-header.row { flex-direction: column; align-items: flex-start; }
+}
+
+.support-page .primary-btn {
+  background: #ff0000;
+  border: 2px solid #ff0000;
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255, 0, 0, 0.35);
+}
+
+.support-page .primary-btn:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 0 22px rgba(255, 0, 0, 0.55);
+}

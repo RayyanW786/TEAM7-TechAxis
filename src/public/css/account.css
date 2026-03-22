@@ -1,0 +1,393 @@
+body {
+    margin: 0;
+    font-family: "Roboto", Arial, sans-serif;
+    background-color: #0f0f0f;
+    color: #ffffff;
+}
+
+/* =========================
+   Page Layout
+   ========================= */
+
+.account-page {
+    min-height: calc(100vh - 250px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
+    box-sizing: border-box;
+}
+
+.account-panel {
+    padding: 32px 48px;
+    max-width: 950px;
+    width: 92%;
+    background-color: #1a1a1a;
+    box-sizing: border-box;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+/* =========================
+   Title
+   ========================= */
+
+.account-heading {
+    margin: 0 0 22px 0;
+    font-size: 28px;
+    font-weight: 700;
+    font-family: "Orbitron", "Roboto", Arial, sans-serif;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    text-align: center;
+}
+
+/* =========================
+   Card
+   ========================= */
+
+.account-columns {
+    display: flex;
+    justify-content: center;
+}
+
+.account-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 720px;
+}
+
+.account-card-header {
+    background-color: #d9d9d9;
+    color: #000000;
+    border: 3px solid #000000;
+    text-align: center;
+    font-weight: 700;
+    padding: 10px 0;
+    text-transform: uppercase;
+    font-family: "Orbitron", "Roboto", Arial, sans-serif;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+    margin-bottom: 8px;
+}
+
+.account-card-body {
+    border: 3px solid #000000;
+    background-color: #d4d4d4;
+    padding: 22px 26px;
+    font-size: 15px;
+    color: #000000;
+}
+
+/* =========================
+   Error Messages For Admin Code
+   ========================= */
+
+.error-messages {
+    color: #dc2626;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-transform: capitalize;
+}
+
+.error-messages ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.error-messages li {
+    color: #dc2626;
+}
+
+/* =========================
+   Form Layout
+   ========================= */
+
+.register-field-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.register-label {
+    font-weight: 700;
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.88) !important;
+    letter-spacing: 0.2px;
+}
+
+/* =========================
+   Inputs
+   ========================= */
+
+.register-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 0.95);
+    font-size: 14px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.register-input::placeholder {
+    color: rgba(0, 0, 0, 0.45);
+}
+
+.register-input:hover {
+    border-color: rgba(102, 100, 100, 0.55);
+    background: #ffffff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+}
+
+.register-input:focus {
+    border-color: rgba(0, 0, 0, 0.45);
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+}
+
+/* Dropdown styling */
+select.register-input {
+    cursor: pointer;
+    appearance: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-image:
+        linear-gradient(45deg, transparent 50%, rgba(0, 0, 0, 0.55) 50%),
+        linear-gradient(135deg, rgba(0, 0, 0, 0.55) 50%, transparent 50%);
+    background-position:
+        calc(100% - 18px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+    background-size: 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 36px;
+}
+
+/* =========================
+   Spacing Before Submit
+   ========================= */
+
+#confirm-row,
+#admin_code_row {
+    margin-bottom: 20px;
+}
+
+/* =========================
+   Register Button
+   ========================= */
+
+.register-button {
+    display: block;
+    margin: 45px auto 12px auto;
+    padding: 14px 38px;
+    border: none;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    background-color: #dc2626;
+    color: #ffffff;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    min-width: 220px;
+    transition: all 0.2s ease;
+}
+
+.register-button:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+/* =========================
+   Login Link
+   ========================= */
+
+.account-card-body .JUSTCHECKING {
+    text-align: center;
+    margin-top: 10px;
+    color: #000000 !important;
+}
+
+.account-card-body .JUSTCHECKING a {
+    color: #ff0000 !important;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.account-card-body .JUSTCHECKING a:hover {
+    text-decoration: underline;
+}
+
+/* =========================
+   Password Checklist
+   ========================= */
+
+.pw-checklist {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-6px);
+    transition: max-height 250ms ease, opacity 200ms ease, transform 200ms ease;
+    display: block;
+}
+
+.pw-checklist.is-open {
+    margin: 8px 0 14px;
+    padding: 14px 16px;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: rgba(0, 0, 0, 0.07);
+    border-radius: 14px;
+    max-height: 260px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.pw-checklist-title {
+    font-weight: 900;
+    margin-bottom: 8px;
+    color: #000000;
+}
+
+.pw-checklist ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pw-rule {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+    color: #000000;
+}
+
+.account-card-body .pw-rule {
+    color: #222222;
+}
+
+.pw-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Green tick */
+.pw-rule.is-met .pw-icon {
+    border-color: rgba(0, 150, 0, 0.55);
+}
+
+.pw-rule.is-met .pw-icon::before {
+    content: "✓";
+    color: rgba(0, 150, 0, 0.75);
+    font-weight: 900;
+    font-size: 13px;
+}
+
+/* Grey dot (not met state) */
+.pw-rule.not-met .pw-icon {
+    border-color: rgba(124, 123, 123, 0.85);
+}
+
+.pw-rule.not-met .pw-icon::before {
+    content: "·";
+    color: rgba(124, 123, 123, 0.85);
+    font-weight: 900;
+    font-size: 16px;
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+/* Tablet */
+@media (max-width: 900px) {
+    .account-panel {
+        padding: 22px;
+    }
+
+    .account-card-body {
+        padding: 20px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .account-page {
+        padding: 18px 0;
+    }
+
+    .account-panel {
+        width: 94%;
+        padding: 18px 14px;
+        border-radius: 16px;
+    }
+
+    .account-heading {
+        font-size: 22px;
+        margin-bottom: 16px;
+        text-underline-offset: 3px;
+    }
+
+    .account-card {
+        max-width: 100%;
+    }
+
+    .account-card-header,
+    .account-card-body {
+        border-width: 2px;
+    }
+
+    .account-card-header {
+        font-size: 13px;
+        padding: 10px 8px;
+    }
+
+    .account-card-body {
+        padding: 16px 14px;
+        font-size: 14px;
+    }
+
+    .register-label {
+        font-size: 12.5px;
+    }
+
+    .register-input {
+        padding: 12px;
+        font-size: 14px;
+        border-radius: 12px;
+    }
+
+    .register-button {
+        width: 100%;
+        min-width: 0;
+        margin: 26px 0 10px 0;
+    }
+
+    .pw-checklist.is-open {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .pw-rule {
+        gap: 8px;
+    }
+}
+

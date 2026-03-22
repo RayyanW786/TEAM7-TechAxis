@@ -70,10 +70,37 @@ class ProductController extends ApiController
         return response()->json($products);
     }
 
+    public function featured(Request $request)
+    {
+        $limit = max(1, min(12, (int) $request->query('limit', 4)));
+
+        $products = Product::query()
+            ->active()
+            ->with(['images' => fn($q) => $q->where('sort_order', 0)])
+            ->inRandomOrder()
+            ->limit($limit)
+            ->get();
+
+        return response()->json([
+            'items' => $products->map(fn(Product $product) => [
+                'id' => $product->id,
+                'slug' => $product->slug,
+                'name' => $product->name,
+                'summary' => $product->summary,
+                'effective_price' => $product->effectivePrice(),
+                'primary_image_url' => optional($product->images->first())->url,
+                'primary_image_alt' => optional($product->images->first())->alt_text ?? $product->name,
+            ])->values(),
+            'limit' => $limit,
+        ]);
+    }
+
 
     public function show(Product $product)
     {
-        $product->load(['category', 'brand', 'images', 'variants', 'optionTypes.values']);
+        $product->load(['category', 'brand', 'images', 'variants', 'optionTypes.values'])
+            ->loadCount('reviews')
+            ->loadAvg('reviews', 'rating');
 
         return response()->json([
             'product' => $product,

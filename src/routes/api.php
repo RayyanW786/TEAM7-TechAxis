@@ -26,6 +26,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}', [CategoryController::class, 'show']);
 
 Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/featured', [ProductController::class, 'featured']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
 Route::get('/products/{product}/images', [ProductImageController::class, 'index']);
 Route::get('/products/{product}/reviews', [ReviewController::class, 'productIndex']);
@@ -54,7 +55,7 @@ Route::middleware(['web'])->group(function () {
 
         Route::get('/tickets', [SupportTicketController::class, 'index']);
         Route::get('/tickets/{ticket}', [SupportTicketController::class, 'show']);
-        Route::post('/tickets', [SupportTicketController::class, 'store']);
+        Route::post('/tickets', [SupportTicketController::class, 'store'])->name('tickets.submit');
         Route::post('/tickets/{ticket}/messages', [SupportTicketController::class, 'addMessage']);
 
         Route::get('/returns', [ReturnRequestController::class, 'index']);

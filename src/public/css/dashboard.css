@@ -1,0 +1,205 @@
+/* Tech Axis Dashboard Styles */
+
+/* Global Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@300;400;500&display=swap');
+
+/* Color Palette */
+:root {
+    --tech-red: #FF0000;
+    --tech-black: #000000;
+    --tech-dark: #1C1C1C;
+    --tech-light: #FFFFFF;
+    --tech-gray: #333333;
+}
+
+/* BODY */
+body {
+    background-color: var(--tech-black);
+    color: var(--tech-light);
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* CONTAINER */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* NAVBAR */
+.webpage-header {
+    background-color: var(--tech-dark);
+    border: 5px solid var(--tech-red);
+}
+
+.web-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.brand-logo img {
+    max-width: 200px;
+    height: auto;
+}
+
+.main-nav ul {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav a {
+    color: var(--tech-light);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.main-nav a:hover {
+    color: var(--tech-red);
+}
+
+/* CUSTOMER DASHBOARD */
+.customerdashboard-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+/* Dashboard Title */
+.customerdashboard-title {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2.8rem;
+    margin-bottom: 40px;
+}
+
+/* Dashboard Actions */
+.dash-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.dash-box {
+    background: var(--tech-dark);
+    border: 1px solid var(--tech-gray);
+    width: 300px;
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--tech-light);
+    transition: 0.3s ease;
+    box-shadow: 0 5px 10px rgba(255, 0, 0, 0.2);
+}
+
+.dash-box:hover {
+    transform: translateY(-8px) scale(1.03);
+    border-color: var(--tech-red);
+    box-shadow: 0 10px 22px rgba(255, 0, 0, 0.35);
+}
+
+.dash-box h2 {
+    font-family: 'Orbitron', sans-serif;
+    margin-bottom: 10px;
+    color: var(--tech-red);
+}
+
+.dash-box p {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+/* Recent Orders */
+.recent-orders-section {
+    background: var(--tech-dark);
+    border: 1px solid var(--tech-gray);
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 5px 12px rgba(255, 0, 0, 0.2);
+}
+
+.section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: var(--tech-light);
+}
+
+.orders-table {
+    width: 100%;
+}
+
+.order-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 150px 150px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--tech-gray);
+}
+
+.order-row:last-child {
+    border-bottom: none;
+}
+
+.order-col {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.95rem;
+}
+
+/* Status colors */
+.status-delivered { color: #00FF00; font-weight: bold; }
+.status-shipped { color: #00BFFF; font-weight: bold; }
+.status-processing { color: #FFD700; font-weight: bold; }
+.status-cancelled { color: #FF4444; font-weight: bold; }
+
+/* FOOTER */
+.site-footer {
+    background-color: var(--tech-red);
+    padding: 1rem 0;
+    text-align: center;
+}
+
+.footer-content p {
+    margin: 0.5rem 0;
+    color: #fff;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: var(--tech-light);
+    text-decoration: none;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: var(--tech-red);
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+    .dash-actions { flex-direction: column; align-items: center; }
+    .dash-box { width: 90%; }
+    .order-row { grid-template-columns: 1fr; row-gap: 8px; }
+    .order-col { font-size: 0.9rem; }
+    .main-nav ul { flex-direction: column; gap: 1rem; text-align: center; }
+}

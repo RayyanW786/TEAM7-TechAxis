@@ -18,7 +18,6 @@ html, body {
     height: 100%;
 }
 body {
-  color: var(--tech-light);
     line-height: 1.6;
     font-family: 'Roboto', Arial, sans-serif;
     background-color: var(--tech-black);
@@ -165,4 +164,30 @@ z-index: 1000;
     font-family: 'Orbitron', sans-serif;  
     font-weight: 700;  
     transition: color 0.3s ease;
+}
+
+/* Mobile navbar behavior */
+@media (max-width: 805px) {
+    .web-header-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 0 10px;
+    }
+
+    .main-nav ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .main-nav a {
+        font-size: 0.9rem;
+    }
+
+    .user-controls {
+        justify-content: center;
+        gap: 1rem;
+    }
 }

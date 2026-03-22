@@ -1,11 +1,39 @@
-@extends('layouts.main')
-@section('title', 'About | Tech Axis')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About Tech Axis</title>
 
-@push('styles')
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- About page styles -->
     <link rel="stylesheet" href="{{ asset('css/about.css') }}">
-@endpush
+</head>
+<body class="about-page">
 
-@section('content')
+    <!-- Top navigation bar -->
+    <header class="ta-header">
+        <div class="ta-header-inner">
+            <div class="ta-logo">
+                <img src="{{ asset('images/techaxis-logo.png') }}" alt="Tech Axis logo">
+            </div>
+
+            <nav class="ta-nav">
+                <a href="{{ url('/') }}" class="ta-nav-link">Home</a>
+                <a href="{{ url('/shop') }}" class="ta-nav-link">Shop</a>
+                <a href="{{ url('/about') }}" class="ta-nav-link ta-nav-link--active">About</a>
+                <a href="{{ url('/contact') }}" class="ta-nav-link">Contact</a>
+                <a href="{{ url('/account') }}" class="ta-nav-link">Account</a>
+            </nav>
+
+            <div class="ta-icons">
+                <span class="ta-icon">🔍</span>
+                <span class="ta-icon">🛒</span>
+            </div>
+        </div>
+    </header>
+
     <main class="ta-main">
         <section class="ta-panel ta-panel--title">
             <h1>About Tech Axis</h1>

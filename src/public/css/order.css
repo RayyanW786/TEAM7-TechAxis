@@ -24,3 +24,16 @@
   justify-content: space-between;
   font-size: 18px;
 }
+.status-form {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.status-form select {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: var(--tech-dark);
+  color: var(--tech-light);
+}
