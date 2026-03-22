@@ -12,7 +12,7 @@
         <h1 class="customerdashboard-title">Customer Dashboard</h1>
 
         <div class="dash-actions">
-            <a href="{{ url('/orders') }}" class="dash-box">
+            <a href="{{ route('orders.index') }}" class="dash-box">
                 <h2>View Orders</h2>
                 <p>Check your order history and track deliveries.</p>
             </a>

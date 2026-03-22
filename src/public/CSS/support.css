@@ -181,13 +181,25 @@
 }
 
 .message-form {
-  display: flex;
-  gap: 10px;
-  align-items: end;
+  display: grid;
+  gap: 0.9rem;
 }
 
-.message-form .form-textarea {
-  flex: 1;
+.message-form__textarea {
+  min-height: 120px;
+}
+
+.message-form__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.message-form__button {
+  min-height: 46px;
+  min-width: 160px;
+  padding: 0.8rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {

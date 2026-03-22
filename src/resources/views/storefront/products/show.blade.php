@@ -8,6 +8,13 @@
     $descriptionText = $product->description ?: 'No Product description found';
     $images = $product->images ?? collect();
     $primaryImageUrl = optional($images->first())->url;
+    $stockState = $product->stockState();
+    $stockLabel = $product->stockLabel();
+    $stockClass = match ($stockState) {
+        'out_of_stock' => 'stock-badge-out',
+        'low_stock' => 'stock-badge-low',
+        default => 'stock-badge-in',
+    };
 @endphp
 
 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 product-page-topbar">
@@ -83,6 +90,19 @@
             &pound;{{ number_format((float) $effectivePrice, 2) }}
         </div>
 
+        <div class="product-stock-summary mb-3">
+            <span class="product-stock-badge {{ $stockClass }}" data-product-stock-badge>{{ $stockLabel }}</span>
+            <p class="text-muted small mb-0 mt-2" data-product-stock-message>
+                @if ($stockState === 'out_of_stock')
+                    This item is currently unavailable. You can still browse the details and check back soon.
+                @elseif ($stockState === 'low_stock')
+                    Stock is running low, so it may sell out soon.
+                @else
+                    Ready to ship while current stock lasts.
+                @endif
+            </p>
+        </div>
+
         <div class="card shadow-sm mb-3">
             <div class="card-body">
                 <h2 class="h6 mb-2">Summary</h2>
@@ -107,7 +127,12 @@
                         <select id="variantSelect" class="form-select">
                             <option value="">Select...</option>
                             @foreach ($product->variants as $variant)
-                                <option value="{{ $variant->id }}" data-price="{{ $variant->price }}">
+                                <option
+                                    value="{{ $variant->id }}"
+                                    data-price="{{ $variant->price }}"
+                                    data-stock-quantity="{{ (int) $variant->stock_quantity }}"
+                                    data-low-stock-threshold="{{ (int) $variant->low_stock_threshold }}"
+                                >
                                     {{ $variant->title ?: $variant->sku }} - &pound;{{ number_format((float) $variant->price, 2) }}
                                 </option>
                             @endforeach
@@ -129,6 +154,8 @@
                         type="button"
                         data-product-id="{{ (int) $product->id }}"
                         data-requires-variant="{{ $product->has_variants ? '1' : '0' }}"
+                        data-stock-state="{{ $stockState }}"
+                        data-initial-stock-state="{{ $stockState }}"
                     >
                         Add to cart
                     </button>

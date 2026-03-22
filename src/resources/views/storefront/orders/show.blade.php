@@ -9,6 +9,7 @@
 @section('content')
     @php
         $isCompletedOrder = $order->status === \App\Enums\OrderStatus::Completed;
+        $allowSupportTickets = $order->status !== \App\Enums\OrderStatus::Cancelled;
         $total = 0;
         foreach ($order->items as $it) {
             $total += (float) $it->unit_price * (int) $it->quantity;
@@ -47,6 +48,20 @@
                                 <a href="{{ $reviewUrl }}" class="item-review-link">
                                     {{ $hasReview ? 'Edit review' : 'Review product' }}
                                 </a>
+                            </div>
+                        @endif
+                        @if ($allowSupportTickets && $item->product && !auth()->user()->isAdmin())
+                            <div class="item-support-actions">
+                                <form method="POST" action="{{ route('support.tickets.order-item.store', $item) }}">
+                                    @csrf
+                                    <input type="hidden" name="ticket_kind" value="product_support">
+                                    <button type="submit" class="item-support-link">Create support ticket</button>
+                                </form>
+                                <form method="POST" action="{{ route('support.tickets.order-item.store', $item) }}">
+                                    @csrf
+                                    <input type="hidden" name="ticket_kind" value="refund_request">
+                                    <button type="submit" class="item-refund-link">Request refund</button>
+                                </form>
                             </div>
                         @endif
                     </div>

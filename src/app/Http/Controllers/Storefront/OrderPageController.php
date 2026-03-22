@@ -9,6 +9,22 @@ use Illuminate\Http\Request;
 
 class OrderPageController extends Controller
 {
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        abort_unless($user, 404);
+
+        $orders = Order::query()
+            ->where('user_id', $user->id)
+            ->withCount('items')
+            ->orderByDesc('created_at')
+            ->paginate(12);
+
+        return view('storefront.orders.index', [
+            'orders' => $orders,
+        ]);
+    }
+
     public function show(Request $request, Order $order)
     {
         $user = $request->user();

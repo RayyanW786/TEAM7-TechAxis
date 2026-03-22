@@ -105,6 +105,9 @@ class ProductController extends ApiController
         return response()->json([
             'product' => $product,
             'effective_price' => $product->effectivePrice(),
+            'stock_state' => $product->stockState(),
+            'stock_label' => $product->stockLabel(),
+            'total_available_stock' => $product->totalAvailableStock(),
         ]);
     }
 
