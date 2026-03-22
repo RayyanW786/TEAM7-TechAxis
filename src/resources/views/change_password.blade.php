@@ -3,63 +3,70 @@
 @section('title', 'Change Password - Tech Axis')
 
 @push('styles')
-    <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;700&display=swap"
-        rel="stylesheet">
+    <link href="{{ asset('css/admin/admin-shell.css') }}" rel="stylesheet">
     <link href="{{ asset('css/change_password.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
-
-    <div class="password-container">
-        <h1>Change Password</h1>
-
-        @if($errors->any())
-            <div class="error-box">
-                @foreach($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
+    <div class="admin-shell admin-password-page">
+        <div class="admin-shell-header admin-shell-header--stack">
+            <div>
+                <span class="admin-shell-kicker">Account security</span>
+                <h1 class="admin-shell-title">Change password</h1>
+                <p class="admin-shell-copy">Update your admin password with the same strong password rules used during registration.</p>
             </div>
-        @endif
-
-        @if(session('success'))
-            <div class="success-box">
-                {{ session('success') }}
+            <div class="admin-shell-actions admin-shell-actions--left">
+                <a href="{{ route('admin.dashboard') }}" class="admin-shell-button">Back to dashboard</a>
             </div>
-        @endif
+        </div>
 
-        <form method="POST" action="{{ route('password.update') }}" class="password-form">
-            @csrf
+        <div class="password-container">
+            @if($errors->any())
+                <div class="error-box">
+                    @foreach($errors->all() as $error)
+                        <p>{{ $error }}</p>
+                    @endforeach
+                </div>
+            @endif
 
-            <div class="form-group">
-                <label>Current Password</label>
-                <input type="password" name="current_password" required>
-            </div>
+            @if(session('success'))
+                <div class="success-box">
+                    {{ session('success') }}
+                </div>
+            @endif
 
-            <div class="form-group">
-                <label>New Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
+            <form method="POST" action="{{ route('password.update') }}" class="password-form">
+                @csrf
 
-            <div class="form-group">
-                <label>Confirm Password</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" required>
-            </div>
+                <div class="form-group">
+                    <label for="current_password">Current password</label>
+                    <input id="current_password" type="password" name="current_password" required>
+                </div>
 
-            <div id="pw-checklist" class="pw-checklist" aria-live="polite">
-                <div class="pw-checklist-title">Password must include:</div>
-                <ul>
-                    <li class="pw-rule not-met" id="rule-len">At least 8 characters</li>
-                    <li class="pw-rule not-met" id="rule-upper">At least one uppercase letter</li>
-                    <li class="pw-rule not-met" id="rule-lower">At least one lowercase letter</li>
-                    <li class="pw-rule not-met" id="rule-num">At least one number</li>
-                    <li class="pw-rule not-met" id="rule-sym">At least one symbol</li>
-                </ul>
-            </div>
+                <div class="form-group">
+                    <label for="password">New password</label>
+                    <input id="password" type="password" name="password" required>
+                </div>
 
-            <button type="submit">Update Password</button>
+                <div class="form-group">
+                    <label for="password_confirmation">Confirm password</label>
+                    <input id="password_confirmation" type="password" name="password_confirmation" required>
+                </div>
 
-        </form>
+                <div id="pw-checklist" class="pw-checklist" aria-live="polite">
+                    <div class="pw-checklist-title">Password must include:</div>
+                    <ul>
+                        <li class="pw-rule not-met" id="rule-len">At least 8 characters</li>
+                        <li class="pw-rule not-met" id="rule-upper">At least one uppercase letter</li>
+                        <li class="pw-rule not-met" id="rule-lower">At least one lowercase letter</li>
+                        <li class="pw-rule not-met" id="rule-num">At least one number</li>
+                        <li class="pw-rule not-met" id="rule-sym">At least one symbol</li>
+                    </ul>
+                </div>
+
+                <button type="submit">Update password</button>
+            </form>
+        </div>
     </div>
 
 @endsection

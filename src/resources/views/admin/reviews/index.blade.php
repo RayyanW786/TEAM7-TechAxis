@@ -3,17 +3,21 @@
 @section('title', 'Reviews | Admin')
 
 @push('styles')
+<link href="{{ asset('css/admin/admin-shell.css') }}" rel="stylesheet">
 <link href="{{ asset('css/admin/reviews.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
-<div class="dashboard-container admin-reviews-page" data-admin-reviews-root>
-    <div class="admin-reviews-header">
+<div class="admin-shell admin-reviews-page" data-admin-reviews-root>
+    <div class="admin-shell-header">
         <div>
-            <h1>Reviews</h1>
-            <p>Monitor product feedback, service testimonials, and review quality across the storefront.</p>
+            <span class="admin-shell-kicker">Reviews</span>
+            <h1 class="admin-shell-title">Review management</h1>
+            <p class="admin-shell-copy">Monitor product feedback, service testimonials, and review quality across the storefront.</p>
         </div>
-        <a href="{{ route('admin.dashboard') }}" class="admin-review-backlink">Back to dashboard</a>
+        <div class="admin-shell-actions">
+            <a href="{{ route('admin.dashboard') }}" class="admin-shell-button">Back to dashboard</a>
+        </div>
     </div>
 
     <div data-admin-reviews-app></div>
