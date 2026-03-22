@@ -16,6 +16,7 @@ class DiscountCodeController extends ApiController
         $q = trim((string) $request->query('q', ''));
 
         $codes = DiscountCode::query()
+            ->withCount('redemptions')
             ->when($q !== '', fn($qb) => $qb->where('code', 'ilike', '%' . $q . '%'))
             ->orderByDesc('created_at')
             ->paginate((int) $request->query('per_page', 20));
@@ -26,6 +27,8 @@ class DiscountCodeController extends ApiController
     public function show(Request $request, DiscountCode $discountCode)
     {
         $this->requireAdmin($request);
+
+        $discountCode->loadCount('redemptions');
 
         return response()->json($discountCode);
     }
@@ -46,7 +49,9 @@ class DiscountCodeController extends ApiController
             'is_active' => ['nullable', 'boolean'],
         ]);
 
-        return response()->json(DiscountCode::create($data), 201);
+        $discountCode = DiscountCode::create($data);
+
+        return response()->json($discountCode->fresh()->loadCount('redemptions'), 201);
     }
 
     public function update(Request $request, DiscountCode $discountCode)
@@ -67,7 +72,7 @@ class DiscountCodeController extends ApiController
 
         $discountCode->fill($data)->save();
 
-        return response()->json($discountCode->fresh());
+        return response()->json($discountCode->fresh()->loadCount('redemptions'));
     }
 
     public function destroy(Request $request, DiscountCode $discountCode)

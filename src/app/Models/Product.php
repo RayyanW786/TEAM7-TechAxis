@@ -92,6 +92,65 @@ class Product extends Model
         return (string) ($this->lowestVariantPrice() ?? $this->price);
     }
 
+    public function totalAvailableStock(): int
+    {
+        if (! $this->has_variants) {
+            return (int) ($this->stock_quantity ?? 0);
+        }
+
+        if ($this->relationLoaded('variants')) {
+            return (int) $this->variants->sum(fn ($variant) => max(0, (int) ($variant->stock_quantity ?? 0)));
+        }
+
+        return (int) $this->variants()->sum('stock_quantity');
+    }
+
+    public function stockState(): string
+    {
+        if (! $this->has_variants) {
+            $stock = (int) ($this->stock_quantity ?? 0);
+            $threshold = (int) ($this->low_stock_threshold ?? 0);
+
+            if ($stock <= 0) {
+                return 'out_of_stock';
+            }
+
+            if ($stock <= $threshold) {
+                return 'low_stock';
+            }
+
+            return 'in_stock';
+        }
+
+        $variants = $this->relationLoaded('variants')
+            ? $this->variants
+            : $this->variants()->get(['stock_quantity', 'low_stock_threshold']);
+
+        $totalStock = (int) $variants->sum(fn ($variant) => max(0, (int) ($variant->stock_quantity ?? 0)));
+
+        if ($totalStock <= 0) {
+            return 'out_of_stock';
+        }
+
+        $hasLowVariant = $variants->contains(function ($variant) {
+            $stock = (int) ($variant->stock_quantity ?? 0);
+            $threshold = (int) ($variant->low_stock_threshold ?? 0);
+
+            return $stock > 0 && $stock <= $threshold;
+        });
+
+        return $hasLowVariant ? 'low_stock' : 'in_stock';
+    }
+
+    public function stockLabel(): string
+    {
+        return match ($this->stockState()) {
+            'out_of_stock' => 'Out of stock',
+            'low_stock' => 'Low stock',
+            default => 'In stock',
+        };
+    }
+
     public static function searchUsingPgFn(
         string $queryText,
         ?string $categorySlugsPgArray = null,
