@@ -1,32 +1,31 @@
 /* Base */
 body.about-page {
     margin: 0;
-    background-color: #000;           
+    background-color: #000;
     color: #fff;
     font-family: "Roboto", Arial, sans-serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow-y: auto; 
+    overflow-y: auto;
 }
-
 
 a {
     text-decoration: none;
 }
 
-/*Header/nav*/
+/* Header/nav */
 
 .ta-header {
-    background-color: #000;          
-    border-top: 8px solid #c82424;    
-    border-bottom: 8px solid #c82424; 
+    background-color: #000;
+    border-top: 8px solid #c82424;
+    border-bottom: 8px solid #c82424;
 }
 
 .ta-header-inner {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0.5rem 2.5rem;          
+    padding: 0.5rem 2.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -48,7 +47,7 @@ a {
 }
 
 .ta-nav-link--active {
-    color: #ffd600;            
+    color: #ffd600;
 }
 
 .ta-nav-link:hover {
@@ -78,19 +77,19 @@ a {
     color: #ffd600;
 }
 
-/*  Main layout  */
+/* Main layout */
 
 .ta-main {
     max-width: 1200px;
-    margin: 1.75rem auto 1.5rem;      
-    padding: 0;                       
-    flex: 1;                         
+    margin: 1.75rem auto 1.5rem;
+    padding: 0;
+    flex: 1;
 }
 
-/*  Panels  */
+/* Panels */
 
 .ta-panel {
-    background-color: #bfbfbf;      
+    background-color: #bfbfbf;
     border: 4px solid #ffffff;
     padding: 1.25rem 1.75rem;
     margin: 0 auto 1.5rem;
@@ -101,7 +100,23 @@ a {
     text-align: center;
     font-family: "Orbitron", sans-serif;
     font-size: 2rem;
-    text-transform: none;            
+    text-transform: none;
+}
+
+.ta-panel--title h1 {
+    margin: 0;
+    font-size: inherit;
+}
+
+.ta-tagline {
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+    font-family: "Roboto", Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #222;
+    text-transform: none;
+    line-height: 1.5;
 }
 
 /* Large logo row */
@@ -115,6 +130,7 @@ a {
 
 .ta-logo-large img {
     height: 115px;
+    max-width: 100%;
 }
 
 /* Content panel */
@@ -122,11 +138,14 @@ a {
 .ta-panel--content {
     text-align: center;
     font-size: 1.05rem;
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 .ta-intro-text {
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.5rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .ta-links {
@@ -140,12 +159,19 @@ a {
     color: #000;
     text-decoration: underline;
     font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.ta-link:hover,
+.ta-link:focus {
+    color: #c82424;
 }
 
 .ta-subsection {
     text-align: left;
-    margin: 0 auto 1.2rem;
-    max-width: 800px;
+    margin: 0 auto 1.5rem;
+    max-width: 850px;
+    padding-top: 0.5rem;
 }
 
 .ta-subsection h2 {
@@ -155,6 +181,22 @@ a {
     text-transform: uppercase;
 }
 
+.ta-subsection p {
+    margin: 0;
+    line-height: 1.7;
+}
+
+.ta-tech-list {
+    margin: 0.75rem 0 0;
+    padding-left: 1.25rem;
+}
+
+.ta-tech-list li {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+
+/* Footer */
 .ta-service-reviews {
     margin-top: 2.5rem;
     padding-top: 2rem;
@@ -462,4 +504,128 @@ a {
 
 .ta-footer-copy {
     text-align: right;
+}
+
+/* Tablet responsiveness */
+
+@media (max-width: 900px) {
+    .ta-header-inner {
+        padding: 0.75rem 1.25rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .ta-nav {
+        gap: 1.25rem;
+        font-size: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .ta-icons {
+        gap: 1rem;
+        margin-right: 0;
+    }
+
+    .ta-main {
+        margin: 1.25rem auto 1.25rem;
+        padding: 0 1rem;
+    }
+
+    .ta-panel {
+        padding: 1.1rem 1.2rem;
+    }
+
+    .ta-links {
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .ta-logo-large img {
+        height: 95px;
+    }
+
+    .ta-footer-inner {
+        padding: 0.75rem 1rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+}
+
+/* Mobile responsiveness */
+
+@media (max-width: 600px) {
+    .ta-header-inner {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .ta-logo img {
+        height: 44px;
+    }
+
+    .ta-nav {
+        width: 100%;
+        justify-content: center;
+        gap: 0.9rem;
+        font-size: 0.95rem;
+    }
+
+    .ta-icons {
+        justify-content: center;
+    }
+
+    .ta-panel--title {
+        font-size: 1.5rem;
+        padding: 1rem;
+    }
+
+    .ta-tagline {
+        font-size: 0.95rem;
+    }
+
+    .ta-logo-large {
+        margin: 1.25rem auto;
+    }
+
+    .ta-logo-large img {
+        height: 80px;
+    }
+
+    .ta-panel--content {
+        font-size: 0.98rem;
+    }
+
+    .ta-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.9rem;
+    }
+
+    .ta-link {
+        display: inline-block;
+        width: 100%;
+        max-width: 240px;
+        text-align: center;
+    }
+
+    .ta-subsection h2 {
+        font-size: 1.1rem;
+    }
+
+    .ta-footer-inner {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .ta-footer-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .ta-footer-copy {
+        text-align: center;
+    }
 }
