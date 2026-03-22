@@ -128,6 +128,33 @@ class CartController extends ApiController
         }
     }
 
+    public function previewDiscount(Request $request)
+    {
+        $cart = $this->resolveCart($request);
+
+        $user = $request->user();
+        abort_unless($user, 401);
+
+        $data = $request->validate([
+            'discount_code' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        try {
+            $preview = $cart->previewDiscount($user->id, $data['discount_code'] ?? null);
+
+            return response()->json([
+                'subtotal_amount' => (float) ($preview->subtotal_amount ?? 0),
+                'discount_total' => (float) ($preview->discount_total ?? 0),
+                'total_amount' => (float) ($preview->total_amount ?? 0),
+                'applied_code' => $preview->applied_code,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => $e->getMessage() ?: 'Could not validate discount code.',
+            ], 422);
+        }
+    }
+
     protected function resolveCart(Request $request): ShoppingCart
     {
         $session = $request->session();

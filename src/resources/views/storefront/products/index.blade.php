@@ -272,6 +272,8 @@
         @php
             $imageUrl = optional($product->images->first())->url;
             $displayPrice = $product->listing_price ?? $product->effectivePrice();
+            $productStockState = $product->stockState();
+            $productStockLabel = $product->stockLabel();
         @endphp
 
         <div class="col">
@@ -288,6 +290,11 @@
                     <div class="card-body product-card-body">
                         <h2 class="h6 mb-2 product-card-title line-clamp-2">{{ $product->name }}</h2>
                         <div class="fw-semibold mb-2">&pound;{{ number_format((float) $displayPrice, 2) }}</div>
+                        <div class="mb-2">
+                            <span class="product-stock-badge {{ $productStockState === 'out_of_stock' ? 'stock-badge-out' : ($productStockState === 'low_stock' ? 'stock-badge-low' : 'stock-badge-in') }}">
+                                {{ $productStockLabel }}
+                            </span>
+                        </div>
 
                         <p class="text-muted small mb-0 line-clamp-2 product-card-summary">
                             {{ $product->summary ?: 'No Product summary found' }}

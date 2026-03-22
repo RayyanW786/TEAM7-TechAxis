@@ -197,6 +197,284 @@ a {
 }
 
 /* Footer */
+.ta-service-reviews {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    text-align: left;
+    color: #111827;
+}
+
+.ta-service-reviews-head {
+    margin-bottom: 1.5rem;
+    max-width: 860px;
+}
+
+.ta-service-reviews-head h2 {
+    font-family: "Orbitron", sans-serif;
+    font-size: 1.6rem;
+    margin-bottom: 0.6rem;
+    color: #05070b;
+    letter-spacing: 0.01em;
+}
+
+.ta-service-reviews-head p {
+    margin: 0;
+    color: rgba(17, 24, 39, 0.88);
+    font-size: 1.08rem;
+    line-height: 1.7;
+}
+
+.service-reviews-shell {
+    display: grid;
+    gap: 1.35rem;
+}
+
+.service-reviews-summary {
+    display: grid;
+    gap: 0.4rem;
+    align-content: start;
+    padding: 1.5rem 1.7rem;
+    border-radius: 22px;
+    border: 1px solid rgba(17, 24, 39, 0.1);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.72));
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
+}
+
+.service-reviews-score {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.45rem;
+    color: #05070b;
+}
+
+.ta-service-reviews .service-reviews-stars,
+.ta-service-reviews .service-review-entry-stars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.22rem;
+    font-size: 1.15rem;
+}
+
+.ta-service-reviews .review-star {
+    color: #94a3b8 !important;
+    opacity: 1;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.ta-service-reviews .review-star.is-filled {
+    color: #d62828 !important;
+    text-shadow: 0 1px 0 rgba(125, 17, 17, 0.18);
+}
+
+.service-reviews-meta {
+    margin-top: 0.5rem;
+    color: rgba(17, 24, 39, 0.82);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.service-reviews-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.9fr);
+    gap: 1.35rem;
+}
+
+.service-reviews-list h3,
+.service-review-card h3 {
+    font-family: "Orbitron", sans-serif;
+    font-size: 1.05rem;
+    margin-bottom: 0.7rem;
+    color: #05070b;
+}
+
+.service-review-entry,
+.service-review-card,
+.service-review-empty {
+    padding: 1.2rem 1.3rem;
+    border-radius: 20px;
+    border: 1px solid rgba(17, 24, 39, 0.1);
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.service-review-entry + .service-review-entry {
+    margin-top: 0.9rem;
+}
+
+.service-review-card p,
+.service-review-entry p,
+.service-review-empty p {
+    margin: 0;
+    color: rgba(17, 24, 39, 0.86);
+    line-height: 1.7;
+}
+
+.service-review-entry-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    align-items: flex-start;
+}
+
+.service-review-entry strong {
+    display: block;
+    color: #05070b;
+    font-size: 1rem;
+}
+
+.service-review-entry-date {
+    margin-top: 0.2rem;
+    color: rgba(71, 85, 105, 0.92);
+    font-size: 0.92rem;
+}
+
+.service-review-form {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.service-review-form .form-label {
+    margin-bottom: 0.2rem;
+    color: #111827;
+    font-weight: 700;
+}
+
+.service-review-form textarea {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, 0.16);
+    background: rgba(255, 255, 255, 0.96);
+    color: #111;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.service-review-form textarea::placeholder {
+    color: rgba(71, 85, 105, 0.88);
+}
+
+.service-review-form textarea:focus {
+    outline: none;
+    border-color: rgba(200, 36, 36, 0.55);
+    box-shadow: 0 0 0 4px rgba(200, 36, 36, 0.12);
+}
+
+.review-rating-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+}
+
+.review-rating-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: rgba(255, 255, 255, 0.94);
+    color: #111827;
+    font-weight: 600;
+}
+
+.review-rating-option input {
+    margin: 0;
+}
+
+.ta-service-reviews .ta-service-review-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 172px;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    background: rgba(255, 255, 255, 0.9);
+    color: #111827 !important;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.ta-service-reviews .ta-service-review-link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+}
+
+.ta-service-reviews .ta-service-review-link[disabled] {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.ta-service-reviews .ta-service-review-link-primary {
+    border-color: #c82424;
+    background: #c82424;
+    color: #fff !important;
+}
+
+.ta-service-reviews .service-review-card .ta-service-review-link:not(.ta-service-review-link-primary) {
+    border-color: #111827;
+    background: #111827;
+    color: #ffffff !important;
+    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.18);
+}
+
+.service-review-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+    color: #334155;
+    font-weight: 600;
+}
+
+.service-review-empty {
+    color: rgba(17, 24, 39, 0.8);
+}
+
+.ta-service-reviews .alert {
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+}
+
+.ta-service-reviews .alert-success {
+    color: #166534;
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.ta-service-reviews .alert-danger {
+    color: #991b1b;
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.28);
+}
+
+@media (max-width: 900px) {
+    .service-reviews-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .service-review-entry-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .service-review-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+/*  Footer  */
 
 .ta-footer {
     background-color: #c82424;

@@ -91,7 +91,12 @@
 
                 <div class="mb-3">
                     <label class="form-label">Discount code (optional)</label>
-                    <input id="discountCodeInput" class="form-control" type="text" maxlength="100">
+                    <div class="input-group">
+                        <input id="discountCodeInput" class="form-control" type="text" maxlength="100">
+                        <button id="applyDiscountButton" class="btn btn-outline-primary" type="button">Apply</button>
+                        <button id="removeDiscountButton" class="btn btn-outline-secondary d-none" type="button">Remove</button>
+                    </div>
+                    <div id="discountMessage" class="form-text mt-2">Apply a valid code to preview the discount before placing your order.</div>
                 </div>
 
                 <div class="mb-3">
@@ -108,8 +113,17 @@
         <div class="card shadow-sm checkout-summary-card">
             <div class="card-body">
                 <h2 class="h5 mb-3">Summary</h2>
+                <div id="checkoutStockWarnings" class="alert alert-warning d-none mb-3"></div>
                 <div id="summaryContainer" class="list-group mb-3"></div>
 
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted">Subtotal</span>
+                    <span id="subtotalText">&pound;0.00</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Discount</span>
+                    <span id="discountText">&pound;0.00</span>
+                </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="fw-semibold">Total</span>
                     <span class="fs-5 fw-bold" id="totalText">&pound;0.00</span>

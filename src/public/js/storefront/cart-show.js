@@ -13,12 +13,33 @@ function calculateTotal(cart) {
   }, 0);
 }
 
+function inventoryStatusForItem(item) {
+  const source = item.variant ?? item.product ?? {};
+  const stock = Number(source.stock_quantity ?? 0);
+  const threshold = Number(source.low_stock_threshold ?? 0);
+
+  if (stock <= 0) {
+    return { state: 'out_of_stock', label: 'Out of stock' };
+  }
+
+  if (stock <= threshold) {
+    return { state: 'low_stock', label: 'Low stock' };
+  }
+
+  return { state: 'in_stock', label: 'In stock' };
+}
+
 function renderCart(cart) {
   clearAlert(messageBox);
   itemsContainer.innerHTML = '';
 
   const items = cart.items || [];
   emptyState.classList.toggle('d-none', items.length !== 0);
+  const hasUnavailableItems = items.some(item => inventoryStatusForItem(item).state === 'out_of_stock');
+
+  if (hasUnavailableItems) {
+    setAlert(messageBox, 'Some items in your cart are currently out of stock. You can remove them or adjust quantities before checkout.', 'warning');
+  }
 
   for (const item of items) {
     const productName = item.product?.name ?? 'Product';
@@ -26,6 +47,7 @@ function renderCart(cart) {
     const unitPrice = Number(item.unit_price || 0);
     const quantityValue = Number(item.quantity || 1);
     const lineTotal = unitPrice * quantityValue;
+    const inventoryStatus = inventoryStatusForItem(item);
 
     const row = document.createElement('div');
     row.className = 'list-group-item cart-line-item';
@@ -35,6 +57,7 @@ function renderCart(cart) {
         <div class="cart-line-meta">
           <div class="fw-semibold">${escapeHtml(productName)}${escapeHtml(variantTitle)}</div>
           <div class="text-muted small">${escapeHtml(formatMoney(unitPrice))} each</div>
+          <div class="small mt-1 cart-stock-indicator cart-stock-indicator--${escapeHtml(inventoryStatus.state)}">${escapeHtml(inventoryStatus.label)}</div>
         </div>
 
         <div class="cart-line-actions">
