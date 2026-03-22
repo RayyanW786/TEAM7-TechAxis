@@ -1,61 +1,72 @@
 # TEAM7 TechAxis
 
-TechAxis is an e-commerce web platform.  
-The system focuses on a gaming and technology retail use case, covering browsing, comparison, purchase flow, and role-based management.
+TechAxis is a database-driven e-commerce platform built around a gaming and technology retail use case. The system includes a customer storefront, order and checkout flows, product comparison, reviews, support tickets, inventory workflows, and an admin operations area.
+
+## Contributors
+
+- `@RayyanW786` - Student ID: `240212160`
+- `@PrinceRyu` - Student ID: `240365363`
+- `@claymaneuan44` - Student ID: `240051695`
+- `@Haaris06` - Student ID: `240118437`
+- `@christopher005bot` - Student ID: `230405950`
+- `@davidode7` - Student ID: `240128159`
+- `@SynoMu` - Student ID: `240132891`
+- `@DeepakSharma45` - Student ID: `250072620`
 
 ## Project Overview
 
-The project was designed to deliver a realistic online store experience with:
+This project was developed to deliver a realistic online store experience with:
 
 - a customer-facing storefront
 - secure account and authentication flows
-- product, inventory, and order data management
-- an administrator-capable backend workflow
+- PostgreSQL-backed business logic and validation
+- inventory, order, discount, review, and support workflows
+- an administrator dashboard for operational tasks
 
-The implementation prioritises practical user journeys (discover -> compare -> buy) and robust database-driven behaviour.
+## Core Features
 
-## What The System Offers
+### Storefront
 
-### Storefront Experience
+- product listing with search, filters, and guided query building
+- product detail pages with galleries, variants, stock messaging, reviews, and comparison
+- cart and checkout with discount code support
+- order history and order detail pages
+- support tickets and refund-request flows linked to purchased items
 
-- Product listing with search and filter support
-- Product detail pages with image galleries and variant selection
-- Product comparison workflow (select two products and compare key attributes side-by-side)
-- Cart and checkout flow with order placement
+### Admin
 
-### Account and Access
+- product, customer, inventory, discount, review, report, and ticket management
+- order processing and shipment management
+- stock transaction logging and inventory alerts
+- storefront access using the same account
 
-- Registration and login flows
-- Role-based routing and behaviour (`customer` and `admin`)
-- Strong password requirements enforced server-side
+### Database / Backend
 
-### Operational Features
+- PostgreSQL schema with constraints, indexes, triggers, and helper functions
+- Laravel controllers and models for role-based workflows
+- stock-aware and discount-aware checkout behaviour
 
-- PostgreSQL-powered product search helpers
-- Order and inventory-related database functions/triggers
-- Address and order handling for checkout
+## Tech Stack
 
-## Technical Stack
-
-- Backend: Laravel (PHP)
-- Frontend: Blade templates, JavaScript, CSS
+- Backend: Laravel / PHP
+- Frontend: Blade, JavaScript, CSS
 - Database: PostgreSQL
-- Optional infrastructure support: Redis (documented in setup guide)
-
-## Data and Architecture Notes
-
-- Core domain entities include products, variants, categories, brands, carts, orders, inventory transactions, and reviews.
-- Business logic is split across Laravel controllers/models and PostgreSQL functions for selected workflows.
-- SQL schema includes constraints, indexes, triggers, and helper functions to enforce consistency and support performance.
+- Optional services: Redis
 
 ## Repository Layout
 
-- `src/` main Laravel application
-- `schema.sql` PostgreSQL schema and DB functions
-- `dml.sql` data manipulation helpers / sample inserts
-- `setup-guide.md` environment setup and run instructions
+- `src/` - main Laravel application
+- `schema.sql` - PostgreSQL schema, triggers, functions, and supporting SQL
+- `dml.sql` - data manipulation helpers / inserts
+- `setup-guide.md` - local setup and environment instructions
 
-## Setup Reference
+## Setup
 
-This README is examiner-facing and intentionally project-focused.  
-For full local setup and run instructions, see: `setup-guide.md`.
+For full setup and run instructions, see [setup-guide.md](setup-guide.md).
+
+## Repository Standards
+
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+
